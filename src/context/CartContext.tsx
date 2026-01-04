@@ -1,4 +1,3 @@
-// src/context/CartContext.tsx
 "use client";
 
 import { createContext, useContext, useEffect, useRef, useState } from "react";
@@ -13,6 +12,7 @@ type CartContextValue = {
   updateItem: (productId: string, qty: number) => Promise<void>;
   removeItem: (productId: string) => Promise<void>;
   refresh: () => Promise<void>;
+  clearCart: () => void;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -38,6 +38,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const clearCart = () => {
+    setCart(null);
+  };
+
   const addItem = async (productId: string, qty = 1) => {
     setCart(await CartAPI.addItem(productId, qty));
   };
@@ -50,16 +54,23 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setCart(await CartAPI.removeItem(productId));
   };
 
-  // 🔒 Sync cart AFTER auth settles
   useEffect(() => {
-    if (!isLoading) {
+    if (!isLoading && isAuthenticated) {
       refresh();
     }
   }, [isAuthenticated, isLoading]);
 
   return (
     <CartContext.Provider
-      value={{ cart, loading, addItem, updateItem, removeItem, refresh }}
+      value={{
+        cart,
+        loading,
+        addItem,
+        updateItem,
+        removeItem,
+        refresh,
+        clearCart,
+      }}
     >
       {children}
     </CartContext.Provider>
