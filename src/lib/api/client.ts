@@ -42,7 +42,8 @@ export async function api<T = unknown>(
   const isAuthEndpoint =
     path.endsWith("/auth/login") ||
     path.endsWith("/auth/register") ||
-    path.endsWith("/auth/refresh");
+    path.endsWith("/auth/refresh") ||
+    path.endsWith("/auth/logout");
 
   let res: Response;
 
