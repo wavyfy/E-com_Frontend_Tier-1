@@ -4,6 +4,7 @@ import { ApiError } from "@/lib/api/api-error";
 import { notFound } from "next/navigation";
 import { AdminCreateButton } from "@/components/products/AdminCreateButton";
 import { AdminProductActions } from "@/components/products/AdminProductActions";
+import AddToCartButton from "@/components/cart/AddToCartButton";
 import type { Product } from "@/lib/api/product.server";
 
 export default async function ProductsPage({
@@ -39,6 +40,8 @@ export default async function ProductsPage({
           <li key={product._id}>
             <Link href={`/products/${product.slug}`}>{product.name}</Link> — ₹
             {product.price}
+            {/* ✅ Add to cart (client component) */}
+            <AddToCartButton productId={product._id} />
             <AdminProductActions productId={product._id} />
           </li>
         ))}

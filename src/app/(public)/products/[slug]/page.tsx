@@ -3,6 +3,7 @@ import { fetchProductBySlug } from "@/lib/api/product.server";
 import { AdminProductActions } from "@/components/products/AdminProductActions";
 import { ApiError } from "@/lib/api/api-error";
 import { notFound } from "next/navigation";
+import AddToCartButton from "@/components/cart/AddToCartButton";
 import type { Product } from "@/lib/api/product.server";
 
 export default async function ProductDetailPage({
@@ -32,6 +33,9 @@ export default async function ProductDetailPage({
 
       {product.description && <p>{product.description}</p>}
       <p>Stock: {product.stock}</p>
+
+      {/* ✅ Add to cart (client component) */}
+      <AddToCartButton productId={product._id} />
 
       <AdminProductActions productId={product._id} />
 

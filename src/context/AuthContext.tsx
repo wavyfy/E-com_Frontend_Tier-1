@@ -1,3 +1,4 @@
+// src/context/AuthContext.tsx
 "use client";
 
 import {
@@ -25,7 +26,6 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-/** Extract role from JWT payload */
 function getRoleFromToken(token: string): Role {
   try {
     const payload = JSON.parse(atob(token.split(".")[1]));
@@ -42,7 +42,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const isAuthenticated = !!accessToken;
 
-  /** Centralized auth-error handling */
   function handleAuthError(err: unknown): never {
     if (
       err instanceof ApiError &&
@@ -55,9 +54,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setRole(null);
       setClientAccessToken(null);
     }
-    throw err; 
+    throw err;
   }
 
+  // 🔄 Restore session (AUTH ONLY)
   useEffect(() => {
     let cancelled = false;
 
@@ -75,36 +75,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setRole(null);
         setClientAccessToken(null);
       } finally {
-        if (!cancelled) {
-          setIsLoading(false);
-        }
+        if (!cancelled) setIsLoading(false);
       }
     }
 
     restoreSession();
-
     return () => {
       cancelled = true;
     };
   }, []);
 
-  // 🔐 Login
   async function login(email: string, password: string) {
     try {
       const { accessToken } = await AuthAPI.login(email, password);
-      setAccessToken(accessToken);
-      setRole(getRoleFromToken(accessToken));
-      setClientAccessToken(accessToken);
-    } catch (err) {
-      handleAuthError(err); // will throw
-    }
-  }
-
-  // 📝 Register
-  async function register(email: string, password: string) {
-    try {
-      const { accessToken } = await AuthAPI.register(email, password);
-
       setAccessToken(accessToken);
       setRole(getRoleFromToken(accessToken));
       setClientAccessToken(accessToken);
@@ -113,7 +96,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  // 🚪 Logout
+  async function register(email: string, password: string) {
+    try {
+      const { accessToken } = await AuthAPI.register(email, password);
+      setAccessToken(accessToken);
+      setRole(getRoleFromToken(accessToken));
+      setClientAccessToken(accessToken);
+    } catch (err) {
+      handleAuthError(err);
+    }
+  }
+
   async function logout() {
     try {
       await AuthAPI.logout();
