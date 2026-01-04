@@ -39,11 +39,8 @@ export async function api<T = unknown>(
     });
   }
 
-  const isAuthEndpoint =
-    path.endsWith("/auth/login") ||
-    path.endsWith("/auth/register") ||
-    path.endsWith("/auth/refresh") ||
-    path.endsWith("/auth/logout");
+  // ✅ FIX 1: robust auth endpoint detection
+  const isAuthEndpoint = path.includes("/auth/");
 
   let res: Response;
 
@@ -94,6 +91,10 @@ export async function api<T = unknown>(
     refreshPromise = fetch(`${base}/auth/refresh`, {
       method: "POST",
       credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      cache: "no-store",
     })
       .then(async (r) => {
         if (!r.ok) {
