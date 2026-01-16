@@ -4,13 +4,14 @@ export type ApiErrorType =
   | "NOT_FOUND"
   | "RATE_LIMIT"
   | "SERVER"
+  | "CONFLICT"
   | "NETWORK"
   | "UNKNOWN";
 
 export class ApiError extends Error {
   readonly type: ApiErrorType;
   readonly status: number | null;
-  readonly code?: string;       
+  readonly code?: string;
   readonly requestId?: string;
   readonly details?: unknown;
 
@@ -18,7 +19,7 @@ export class ApiError extends Error {
     type: ApiErrorType;
     message: string;
     status?: number | null;
-    code?: string;             
+    code?: string;
     requestId?: string;
     details?: unknown;
   }) {
@@ -26,7 +27,7 @@ export class ApiError extends Error {
     this.name = "ApiError";
     this.type = params.type;
     this.status = params.status ?? null;
-    this.code = params.code;     
+    this.code = params.code;
     this.requestId = params.requestId;
     this.details = params.details;
   }

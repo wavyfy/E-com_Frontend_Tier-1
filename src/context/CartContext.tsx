@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { Cart } from "@/lib/types/cart";
 import { CartAPI } from "@/lib/api/cart.api";
 import { useAuth } from "@/context/AuthContext";
+import { ApiError } from "@/lib/api/api-error";
 
 type CartContextValue = {
   cart: Cart | null;
@@ -12,7 +13,6 @@ type CartContextValue = {
   updateItem: (productId: string, qty: number) => Promise<void>;
   removeItem: (productId: string) => Promise<void>;
   refresh: () => Promise<void>;
-  clearCart: () => void;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -29,17 +29,20 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
     isRefreshing.current = true;
     setLoading(true);
+
     try {
       const data = await CartAPI.get();
       setCart(data);
+    } catch (err) {
+      // ✅ Expected during PAYMENT_PENDING
+      if (err instanceof ApiError && err.status === 409) {
+        return;
+      }
+      throw err;
     } finally {
       setLoading(false);
       isRefreshing.current = false;
     }
-  };
-
-  const clearCart = () => {
-    setCart(null);
   };
 
   const addItem = async (productId: string, qty = 1) => {
@@ -69,7 +72,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         updateItem,
         removeItem,
         refresh,
-        clearCart,
       }}
     >
       {children}

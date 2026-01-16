@@ -25,7 +25,6 @@ export async function serverFetch<T>(
     });
   }
 
-  // cookies() is async in your Next.js version
   const cookieStore = await cookies();
   const cookieHeader = cookieStore
     .getAll()
@@ -42,6 +41,7 @@ export async function serverFetch<T>(
         ...(cookieHeader ? { cookie: cookieHeader } : {}),
         ...(options.headers || {}),
       },
+      credentials: "include", // ✅ CRITICAL FIX
       cache: "no-store",
     });
   } catch {
@@ -61,17 +61,20 @@ export async function serverFetch<T>(
   } catch {}
 
   if (!res.ok) {
-    const message = isObject(data) && typeof data.message === "string"
-      ? data.message
-      : "Request failed";
+    const message =
+      isObject(data) && typeof data.message === "string"
+        ? data.message
+        : "Request failed";
 
-    const code = isObject(data) && typeof data.code === "string"
-      ? data.code
-      : undefined;
+    const code =
+      isObject(data) && typeof data.code === "string"
+        ? data.code
+        : undefined;
 
-    const requestId = isObject(data) && typeof data.requestId === "string"
-      ? data.requestId
-      : undefined;
+    const requestId =
+      isObject(data) && typeof data.requestId === "string"
+        ? data.requestId
+        : undefined;
 
     const details = isObject(data) ? data.details : undefined;
 

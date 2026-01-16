@@ -27,20 +27,37 @@ export default async function ProductDetailPage({
   }
 
   return (
-    <main>
-      <h1>{product.name}</h1>
-      <p>₹{product.price}</p>
-
-      {product.description && <p>{product.description}</p>}
-      <p>Stock: {product.stock}</p>
-
-      {/* ✅ Add to cart (client component) */}
-      <AddToCartButton productId={product._id} />
-
-      <AdminProductActions productId={product._id} />
-
-      <div style={{ marginTop: 16 }}>
+    <main style={{ maxWidth: 1000, margin: "0 auto", padding: "24px" }}>
+      {/* Back link */}
+      <div style={{ marginBottom: 24 }}>
         <Link href="/products">← Back to products</Link>
+      </div>
+
+      {/* Product layout */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 24,
+        }}
+      >
+        {/* Product Info */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <h1>{product.name}</h1>
+          <p style={{ fontSize: 18 }}>₹{product.price}</p>
+
+          {product.description && (
+            <p style={{ maxWidth: 700 }}>{product.description}</p>
+          )}
+
+          <p>Stock: {product.stock}</p>
+        </div>
+
+        {/* Actions */}
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+          <AddToCartButton productId={product._id} />
+          <AdminProductActions productId={product._id} />
+        </div>
       </div>
     </main>
   );

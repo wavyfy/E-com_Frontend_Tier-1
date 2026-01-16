@@ -14,6 +14,7 @@ function classifyError(status: number): ApiErrorType {
   if (status === 401 || status === 403) return "AUTH";
   if (status === 422) return "VALIDATION";
   if (status === 404) return "NOT_FOUND";
+  if (status === 409) return "CONFLICT";
   if (status === 429) return "RATE_LIMIT";
   if (status >= 500) return "SERVER";
   return "UNKNOWN";
@@ -39,7 +40,7 @@ export async function api<T = unknown>(
     });
   }
 
-  // ✅ FIX 1: robust auth endpoint detection
+  // robust auth endpoint detection
   const isAuthEndpoint = path.includes("/auth/");
 
   let res: Response;
@@ -62,18 +63,24 @@ export async function api<T = unknown>(
     });
   }
 
+  // No content
   if (res.status === 204) {
     return null as T;
   }
 
   const data = await parseError(res);
 
+  // ---------- SUCCESS ----------
   if (res.ok) {
     return data as T;
   }
 
-  // ---------- NO REFRESH CASE ----------
-  if (res.status !== 401 || isAuthEndpoint) {
+  // ---------- NON-AUTH ERRORS ----------
+  // IMPORTANT:
+  // - Do NOT special-case 400 here
+  // - Preserve error code
+  // - Let feature-level code decide what is recoverable
+  if (res.status !== 401 && res.status !== 403) {
     throw new ApiError({
       type: classifyError(res.status),
       status: res.status,
@@ -84,7 +91,16 @@ export async function api<T = unknown>(
     });
   }
 
-  // ---------- REFRESH FLOW ----------
+  // ---------- AUTH REFRESH FLOW ----------
+  if (isAuthEndpoint) {
+    throw new ApiError({
+      type: "AUTH",
+      status: res.status,
+      message: data?.message || "Unauthorized",
+      code: data?.code,
+    });
+  }
+
   if (!isRefreshing) {
     isRefreshing = true;
 
@@ -105,6 +121,7 @@ export async function api<T = unknown>(
             code: "AUTH_TOKEN_EXPIRED",
           });
         }
+
         const d = await r.json();
         setAccessToken(d.accessToken);
         return d.accessToken;

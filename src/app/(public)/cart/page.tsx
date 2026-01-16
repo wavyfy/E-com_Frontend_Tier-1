@@ -3,46 +3,24 @@
 import { useCart } from "@/context/CartContext";
 import CartItem from "@/components/cart/CartItem";
 import { OrderAPI } from "@/lib/api/order.api";
-import type { Order } from "@/lib/api/order.api";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { ApiError } from "@/lib/api/api-error";
 
 export default function CartPage() {
-  const { cart, loading, updateItem, removeItem, clearCart } = useCart();
+  const { cart, loading, updateItem, removeItem } = useCart();
   const router = useRouter();
 
   const [checkingOut, setCheckingOut] = useState(false);
-  const [pendingOrder, setPendingOrder] = useState<Order | null>(null);
-  const [checkingPending, setCheckingPending] = useState(false);
 
-  // 🔹 Fetch latest pending order when cart is empty
-  useEffect(() => {
-    if (!cart || cart.items.length === 0) {
-      setCheckingPending(true);
-      OrderAPI.getLatestPending()
-        .then(setPendingOrder)
-        .finally(() => setCheckingPending(false));
-    }
-  }, [cart]);
-
-  if (loading || checkingPending) {
+  if (loading) {
     return <p className="p-4">Loading...</p>;
   }
 
-  // 🟡 Empty cart but pending order exists
   if (!cart || cart.items.length === 0) {
     return (
-      <div className="max-w-3xl mx-auto p-4 space-y-4">
+      <div className="max-w-3xl mx-auto p-4">
         <p>Your cart is empty.</p>
-
-        {pendingOrder && (
-          <button
-            onClick={() => router.push(`/checkout/${pendingOrder._id}`)}
-            className="px-4 py-2 bg-black text-white rounded"
-          >
-            Continue Checkout
-          </button>
-        )}
       </div>
     );
   }
@@ -52,17 +30,25 @@ export default function CartPage() {
 
     try {
       setCheckingOut(true);
+
       const order = await OrderAPI.checkout();
-      clearCart();
-      router.replace(`/checkout/${order._id}`);
+
+      // ✅ Redirect to payment step (NOT confirmation)
+      router.push(`/orders/${order._id}/pay`);
+    } catch (err) {
+      if (err instanceof ApiError && err.type === "AUTH") {
+        router.push("/login");
+        return;
+      }
+      throw err;
     } finally {
       setCheckingOut(false);
     }
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-4">
-      <h1 className="text-xl font-semibold mb-4">Your Cart</h1>
+    <div className="max-w-3xl mx-auto p-4 space-y-6">
+      <h1 className="text-xl font-semibold">Your Cart</h1>
 
       <div className="space-y-2">
         {cart.items.map((item) => (
@@ -82,7 +68,7 @@ export default function CartPage() {
         ))}
       </div>
 
-      <div className="mt-6 border-t pt-4 flex justify-between items-center">
+      <div className="border-t pt-4 flex justify-between items-center">
         <div>
           <span className="font-medium">Items: {cart.itemsCount}</span>
           <br />
@@ -93,12 +79,12 @@ export default function CartPage() {
 
         <button
           onClick={handleCheckout}
-          disabled={checkingOut || cart.items.length === 0}
+          disabled={checkingOut}
+          className="px-4 py-2 bg-black text-white rounded"
         >
-          {checkingOut ? "Processing..." : "Proceed to Checkout"}
+          {checkingOut ? "Processing..." : "Proceed to Payment"}
         </button>
       </div>
     </div>
   );
 }
-  

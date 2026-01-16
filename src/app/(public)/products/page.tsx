@@ -30,28 +30,66 @@ export default async function ProductsPage({
   }
 
   return (
-    <main>
-      <h1>Products</h1>
+    <main style={{ maxWidth: 1200, margin: "0 auto", padding: "24px" }}>
+      {/* Header */}
+      <div style={{ marginBottom: 24 }}>
+        <h1 style={{ marginBottom: 12 }}>Products</h1>
+        <AdminCreateButton />
+      </div>
 
-      <AdminCreateButton />
-
-      <ul>
+      {/* Product Grid */}
+      <ul
+        style={{
+          listStyle: "none",
+          padding: 0,
+          margin: 0,
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+          gap: 20,
+        }}
+      >
         {items.map((product) => (
-          <li key={product._id}>
-            <Link href={`/products/${product.slug}`}>{product.name}</Link> — ₹
-            {product.price}
-            {/* ✅ Add to cart (client component) */}
-            <AddToCartButton productId={product._id} />
-            <AdminProductActions productId={product._id} />
+          <li
+            key={product._id}
+            style={{
+              border: "1px solid #ddd",
+              padding: 16,
+              display: "flex",
+              flexDirection: "column",
+              gap: 12,
+            }}
+          >
+            {/* Product Info */}
+            <div>
+              <Link href={`/products/${product.slug}`}>
+                <strong>{product.name}</strong>
+              </Link>
+              <div style={{ marginTop: 4 }}>₹{product.price}</div>
+            </div>
+
+            {/* Actions */}
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <AddToCartButton productId={product._id} />
+              <AdminProductActions productId={product._id} />
+            </div>
           </li>
         ))}
       </ul>
 
-      <div style={{ marginTop: 20 }}>
-        {currentPage > 1 && (
+      {/* Pagination */}
+      <div
+        style={{
+          marginTop: 32,
+          display: "flex",
+          justifyContent: "space-between",
+        }}
+      >
+        {currentPage > 1 ? (
           <Link href={`/products?page=${currentPage - 1}`}>Prev</Link>
+        ) : (
+          <span />
         )}
-        {" | "}
+
         <Link href={`/products?page=${currentPage + 1}`}>Next</Link>
       </div>
     </main>
