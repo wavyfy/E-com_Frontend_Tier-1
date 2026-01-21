@@ -1,24 +1,12 @@
 // app/account/addresses/page.tsx
+import { fetchAddresses } from "@/lib/api/address.server";
 import Link from "next/link";
-// import { fetchAddresses } from "@/lib/api/address.server";
-// import SetDefaultButton from "@/components/address/SetDefaultButton";
-// import DeleteAddressButton from "@/components/address/DeleteAddressButton";
+import SetDefaultButton from "@/components/address/SetDefaultButton";
+import DeleteAddressButton from "@/components/address/DeleteAddressButton";
 import AddressLimitNotice from "@/components/address/AddressLimitNotice";
 
-import { debugServerFetch } from "@/lib/api/_debug-server-fetch";
-
-export const dynamic = "force-dynamic";
-
-type DebugAddress = Record<string, unknown>;
-
 export default async function AddressesPage() {
-  const addresses = await debugServerFetch<DebugAddress[]>("/addresses");
-
-  return (
-    <pre className="whitespace-pre-wrap break-all p-6">
-      {JSON.stringify(addresses, null, 2)}
-    </pre>
-  );
+  const addresses = await fetchAddresses();
 
   if (!addresses.length) {
     return (
@@ -45,7 +33,7 @@ export default async function AddressesPage() {
         />
       </div>
 
-      {/* <ul className="space-y-3">
+      <ul className="space-y-3">
         {addresses.map((a) => (
           <li
             key={a._id}
@@ -78,7 +66,7 @@ export default async function AddressesPage() {
             </div>
           </li>
         ))}
-      </ul> */}
+      </ul>
     </div>
   );
 }
