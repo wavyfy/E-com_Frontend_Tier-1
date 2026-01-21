@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { ApiError } from "./api-error";
+import { ApiError, } from "./api-error";
 import type { ApiErrorType } from "../types/error";
 
 function classifyStatus(status: number): ApiErrorType {
@@ -29,11 +29,10 @@ export async function serverFetch<T>(
   /* ✅ cookies() IS async in your environment */
   const cookieStore = await cookies();
 
-  const cookieHeader = Array.from(cookieStore)
-    .map(([name, value]) => `${name}=${value}`)
+  const cookieHeader = cookieStore
+    .getAll()
+    .map((c) => `${c.name}=${c.value}`)
     .join("; ");
-
-  console.log("SSR COOKIES:", Array.from(cookieStore));
 
   let res: Response;
 
@@ -41,13 +40,9 @@ export async function serverFetch<T>(
     res = await fetch(`${base}${path}`, {
       ...options,
       headers: {
-        "Content-Type": "application/json",
-
-        // allow callers to add headers
         ...(options.headers ?? {}),
-
-        // 🔴 Cookie MUST be capitalized and applied LAST
-        ...(cookieHeader ? { Cookie: cookieHeader } : {}),
+        ...(cookieHeader ? { cookie: cookieHeader } : {}),
+        "Content-Type": "application/json",
       },
       credentials: "include",
       cache: "no-store",
