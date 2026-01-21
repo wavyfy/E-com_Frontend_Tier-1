@@ -34,15 +34,20 @@ export async function serverFetch<T>(
     .join("; ");
 
   console.log("SSR COOKIES:", Array.from(cookieStore));
+
   let res: Response;
 
   try {
     res = await fetch(`${base}${path}`, {
       ...options,
       headers: {
-        ...(options.headers ?? {}),
-        ...(cookieHeader ? { cookie: cookieHeader } : {}),
         "Content-Type": "application/json",
+
+        // allow callers to add headers
+        ...(options.headers ?? {}),
+
+        // 🔴 Cookie MUST be capitalized and applied LAST
+        ...(cookieHeader ? { Cookie: cookieHeader } : {}),
       },
       credentials: "include",
       cache: "no-store",
