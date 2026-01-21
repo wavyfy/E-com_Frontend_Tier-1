@@ -1,6 +1,6 @@
 // src/lib/api/client.ts
-import { ApiError, ApiErrorType } from "./api-error";
-
+import { ApiError } from "./api-error";
+import type { ApiErrorType } from "../types/error";
 let accessToken: string | null = null;
 
 export function setAccessToken(token: string | null) {
