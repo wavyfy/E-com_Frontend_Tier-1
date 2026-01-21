@@ -1,11 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ApiError } from "@/lib/api/api-error";
-import {
-  fetchAdminPayments,
-  type AdminPaymentListItem,
-} from "@/lib/api/payment.server";
+import { fetchAdminPayments } from "@/lib/api/payment.server";
 import { Pagination } from "@/components/common/Pagination";
+import type { AdminPaymentListItem } from "@/lib/types/payment";
 
 export default async function AdminPaymentsPage({
   searchParams,

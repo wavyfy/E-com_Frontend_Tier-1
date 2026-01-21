@@ -3,8 +3,8 @@ import { ApiError } from "@/lib/api/api-error";
 import {
   fetchAdminPaymentById,
   adminUpdatePaymentStatus,
-  type AdminPaymentDetail,
 } from "@/lib/api/payment.server";
+import type { AdminPaymentDetail } from "@/lib/types/payment";
 
 export default async function AdminPaymentDetailPage({
   params,
