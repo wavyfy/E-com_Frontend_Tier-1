@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { ApiError, } from "./api-error";
+import { ApiError } from "./api-error";
 import type { ApiErrorType } from "../types/error";
 
 function classifyStatus(status: number): ApiErrorType {
@@ -26,9 +26,8 @@ export async function serverFetch<T>(
     });
   }
 
-  /* ✅ cookies() IS async in your environment */
+  // ✅ request-bound cookies
   const cookieStore = await cookies();
-
   const cookieHeader = cookieStore
     .getAll()
     .map((c) => `${c.name}=${c.value}`)
@@ -40,9 +39,13 @@ export async function serverFetch<T>(
     res = await fetch(`${base}${path}`, {
       ...options,
       headers: {
-        ...(options.headers ?? {}),
-        ...(cookieHeader ? { cookie: cookieHeader } : {}),
         "Content-Type": "application/json",
+
+        // allow callers to add headers
+        ...(options.headers ?? {}),
+
+        // 🔴 Cookie MUST be capitalized and applied last
+        ...(cookieHeader ? { Cookie: cookieHeader } : {}),
       },
       credentials: "include",
       cache: "no-store",
@@ -64,28 +67,32 @@ export async function serverFetch<T>(
   } catch {}
 
   if (!res.ok) {
-    const message =
-      isObject(data) && typeof data.message === "string"
-        ? data.message
-        : "Request failed";
+    const status = res.status;
+    const type = classifyStatus(status);
 
-    const code =
-      isObject(data) && typeof data.code === "string" ? data.code : undefined;
-
-    const requestId =
-      isObject(data) && typeof data.requestId === "string"
-        ? data.requestId
-        : undefined;
-
-    const details = isObject(data) ? data.details : undefined;
+    // 🔴 CRITICAL: SSR must not crash on expected auth failure
+    if (type === "AUTH") {
+      throw new ApiError({
+        type: "AUTH",
+        status,
+        message: "Authentication required",
+      });
+    }
 
     throw new ApiError({
-      type: classifyStatus(res.status),
-      status: res.status,
-      message,
-      code,
-      requestId,
-      details,
+      type,
+      status,
+      message:
+        isObject(data) && typeof data.message === "string"
+          ? data.message
+          : "Request failed",
+      code:
+        isObject(data) && typeof data.code === "string" ? data.code : undefined,
+      requestId:
+        isObject(data) && typeof data.requestId === "string"
+          ? data.requestId
+          : undefined,
+      details: isObject(data) ? data.details : undefined,
     });
   }
 
