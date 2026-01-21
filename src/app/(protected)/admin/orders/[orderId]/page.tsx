@@ -4,8 +4,9 @@ import { ApiError } from "@/lib/api/api-error";
 import {
   fetchAdminOrderById,
   updateAdminOrderStatus,
-  type AdminOrderDetail,
 } from "@/lib/api/order.server";
+
+import type { AdminOrderDetail } from "@/lib/types/order";
 
 export default async function AdminOrderDetailPage({
   params,
