@@ -1,7 +1,7 @@
 // app/account/addresses/new/page.tsx
 import { fetchLatestOrderWithAddress } from "@/lib/api/order.server";
 import NewAddressClient from "@/components/address/NewAddressClient";
-import type { AddressInput } from "@/components/address/AddressForm";
+import type { AddressInput } from "@/lib/types/address";
 
 export default async function NewAddressPage({
   searchParams,
