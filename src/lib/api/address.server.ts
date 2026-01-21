@@ -13,9 +13,3 @@ export async function fetchAddresses(): Promise<Address[]> {
 export async function fetchAddressById(addressId: string): Promise<Address> {
   return serverFetch<Address>(`/addresses/${addressId}`);
 }
-
-/* ================= GET DEFAULT ================= */
-
-export async function fetchDefaultAddress(): Promise<Address | null> {
-  return serverFetch<Address | null>("/addresses/default");
-}

@@ -6,7 +6,7 @@ import type { Address } from "@/lib/types/address";
 
 export default function DeleteAddressButton({ address }: { address: Address }) {
   const router = useRouter();
-
+  
   async function handleDelete() {
     const confirmed = window.confirm(
       "Are you sure you want to delete this address?",
@@ -14,6 +14,8 @@ export default function DeleteAddressButton({ address }: { address: Address }) {
     if (!confirmed) return;
 
     await AddressAPI.remove(address._id);
+
+    // 🔑 force re-evaluation of empty state
     router.refresh();
   }
 

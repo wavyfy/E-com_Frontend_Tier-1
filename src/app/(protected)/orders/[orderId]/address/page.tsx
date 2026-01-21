@@ -2,7 +2,7 @@
 import { fetchAddresses } from "@/lib/api/address.server";
 import { redirect } from "next/navigation";
 import OrderAddressSelect from "@/components/address/AddressSelect";
-import Link from "next/link";
+import AddressLimitNotice from "@/components/address/AddressLimitNotice";
 
 export default async function OrderAddressPage({
   params,
@@ -13,30 +13,28 @@ export default async function OrderAddressPage({
 
   const addresses = await fetchAddresses();
 
-  // ✅ Empty state: no saved addresses → force create
+  // No addresses → create one → go to PAY
   if (!addresses.length) {
     redirect(
       `/account/addresses/new?from=checkout&returnTo=${encodeURIComponent(
-        `/orders/${orderId}/address`,
+        `/orders/${orderId}/pay`,
       )}`,
     );
   }
 
-  // ✅ Normal selection flow
+  // ✅ ONLY render selection UI
   return (
     <main className="max-w-3xl mx-auto p-4 space-y-4">
       <h1 className="text-xl font-semibold">Select Delivery Address</h1>
 
       <OrderAddressSelect orderId={orderId} addresses={addresses} />
 
-      <Link
-        href={`/account/addresses/new?returnTo=${encodeURIComponent(
-          `/orders/${orderId}/address`,
+      <AddressLimitNotice
+        count={addresses.length}
+        addHref={`/account/addresses/new?from=checkout&returnTo=${encodeURIComponent(
+          `/orders/${orderId}/pay`,
         )}`}
-        className="text-sm text-blue-600 underline"
-      >
-        + Add new address
-      </Link>
+      />
     </main>
   );
 }

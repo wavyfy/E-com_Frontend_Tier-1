@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { OrderAPI } from "@/lib/api/order.api";
 import type { Address } from "@/lib/types/address";
+import type { Order } from "@/lib/types/order";
+import OrderSummary from "@/components/orders/OrderSummary";
 
 export default function OrderAddressSelect({
   orderId,
@@ -14,21 +16,58 @@ export default function OrderAddressSelect({
 }) {
   const router = useRouter();
 
-  const [selected, setSelected] = useState(
-    addresses.find((a) => a.isDefault)?._id ?? addresses[0]._id,
-  );
+  const [order, setOrder] = useState<Order | null>(null);
+  const [selected, setSelected] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  /* ---------- fetch order + sync selection ---------- */
+  useEffect(() => {
+    let mounted = true;
+
+    async function init() {
+      const o = await OrderAPI.getById(orderId);
+      if (!mounted) return;
+
+      setOrder(o);
+
+      const s = o.shippingAddressSnapshot;
+
+      if (s) {
+        const match = addresses.find(
+          (a) => a.line === s.line && a.postalCode === s.postalCode,
+        );
+        if (match) {
+          setSelected(match._id);
+          return;
+        }
+      }
+
+      // fallback
+      setSelected(addresses.find((a) => a.isDefault)?._id ?? addresses[0]._id);
+    }
+
+    init();
+    return () => {
+      mounted = false;
+    };
+  }, [orderId, addresses]);
+
+  /* ---------- confirm ---------- */
   async function handleConfirm() {
-    if (submitting) return;
+    if (submitting || !selected) return;
 
     setSubmitting(true);
     await OrderAPI.attachAddress(orderId, selected);
-    router.replace(`/orders/${orderId}/pay`);
+
+    router.replace(`/orders/${orderId}/pay?addressConfirmed=1`);
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      {/* ✅ ORDER SUMMARY */}
+      {order && <OrderSummary order={order} />}
+
+      {/* ✅ ADDRESS LIST */}
       {addresses.map((a) => (
         <label
           key={a._id}
@@ -60,7 +99,7 @@ export default function OrderAddressSelect({
 
       <button
         onClick={handleConfirm}
-        disabled={submitting}
+        disabled={submitting || !selected}
         className="w-full rounded-md bg-black py-2 text-white disabled:bg-gray-400"
       >
         {submitting ? "Saving…" : "Use this address"}

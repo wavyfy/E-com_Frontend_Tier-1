@@ -21,10 +21,6 @@ export function fetchOrders(
   return serverFetch(`/orders?page=${page}&limit=${limit}`);
 }
 
-export function fetchLatestOrderWithAddress() {
-  return serverFetch<Order | null>("/orders/latest-with-address");
-}
-
 /* ================= ADMIN ================= */
 
 export function fetchAdminOrders(

@@ -3,6 +3,7 @@ import { fetchAddresses } from "@/lib/api/address.server";
 import Link from "next/link";
 import SetDefaultButton from "@/components/address/SetDefaultButton";
 import DeleteAddressButton from "@/components/address/DeleteAddressButton";
+import AddressLimitNotice from "@/components/address/AddressLimitNotice";
 
 export default async function AddressesPage() {
   const addresses = await fetchAddresses();
@@ -25,12 +26,11 @@ export default async function AddressesPage() {
     <div className="max-w-3xl mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold">My Addresses</h1>
-        <Link
-          href="/account/addresses/new"
-          className="text-sm font-medium text-blue-600 hover:underline"
-        >
-          Add new
-        </Link>
+
+        <AddressLimitNotice
+          count={addresses.length}
+          addHref="/account/addresses/new"
+        />
       </div>
 
       <ul className="space-y-3">

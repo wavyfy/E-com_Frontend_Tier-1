@@ -11,8 +11,9 @@ import { OrderPaymentTimer } from "@/components/orders/OrderPaymentTimer";
 export default function OrderPayPage() {
   const { orderId } = useParams<{ orderId: string }>();
   const router = useRouter();
+
   const [order, setOrder] = useState<Order | null>(null);
-  const [loaded, setLoaded] = useState(false); // 🔑 fetch lifecycle guard
+  const [loaded, setLoaded] = useState(false);
   const [paying, setPaying] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [redirectIn, setRedirectIn] = useState<number | null>(null);
@@ -20,6 +21,7 @@ export default function OrderPayPage() {
   const redirectStartedRef = useRef(false);
   const redirectCancelledRef = useRef(false);
   const handlingTransitionRef = useRef(false);
+  const addressGuardTriggeredRef = useRef(false);
 
   /* ---------- derived ---------- */
   const MAX_RETRIES = 3;
@@ -42,18 +44,27 @@ export default function OrderPayPage() {
         setOrder(data);
         setLoaded(true);
       })
-      .catch(() => {
-        setLoaded(true);
-      });
+      .catch(() => setLoaded(true));
   }, [orderId]);
 
-  /* ---------- address guard (SAFE) ---------- */
+  /* ---------- address guard (FINAL – snapshot-safe) ---------- */
   useEffect(() => {
-    if (!loaded) return;
-    if (!order) return;
+    if (!loaded || !order) return;
 
+    // allow one render cycle for server-side attach to reflect
     if (!order.shippingAddressSnapshot) {
-      router.replace(`/orders/${order._id}/address`);
+      if (addressGuardTriggeredRef.current) return;
+
+      addressGuardTriggeredRef.current = true;
+
+      // re-fetch once before redirecting
+      OrderAPI.getById(order._id).then((latest) => {
+        if (!latest.shippingAddressSnapshot) {
+          router.replace(`/orders/${order._id}/address`);
+        } else {
+          setOrder(latest); // 🔑 snapshot now available → render
+        }
+      });
     }
   }, [loaded, order, router]);
 
@@ -74,8 +85,7 @@ export default function OrderPayPage() {
     if (!order) return;
 
     const last = order.statusHistory.at(-1);
-    if (!last) return;
-    if (handlingTransitionRef.current) return;
+    if (!last || handlingTransitionRef.current) return;
 
     handlingTransitionRef.current = true;
 
@@ -161,17 +171,7 @@ export default function OrderPayPage() {
           return;
         }
 
-        if (err.code === "PAYMENT_IN_PROGRESS") {
-          setMessage(
-            "Payment is already open in another tab. Please complete it there.",
-          );
-        } else if (err.code === "PAYMENT_RETRY_LIMIT_REACHED") {
-          setMessage(
-            "You have reached the maximum number of payment attempts.",
-          );
-        } else {
-          setMessage(err.message || "Unable to start payment.");
-        }
+        setMessage(err.message || "Unable to start payment.");
       }
     } finally {
       setPaying(false);
@@ -199,6 +199,7 @@ export default function OrderPayPage() {
         </>
       )}
 
+      {/* ✅ ADDRESS DISPLAY (correct + stable) */}
       {order.shippingAddressSnapshot && (
         <section className="border rounded p-3 space-y-2">
           <div className="flex items-center justify-between">
@@ -215,9 +216,9 @@ export default function OrderPayPage() {
             <p className="font-medium">{order.shippingAddressSnapshot.name}</p>
             <p>{order.shippingAddressSnapshot.line}</p>
             <p>
-              {order.shippingAddressSnapshot.postalCode}
+              {order.shippingAddressSnapshot.postalCode},{" "}
               {order.shippingAddressSnapshot.city},{" "}
-              {order.shippingAddressSnapshot.state}{" "}
+              {order.shippingAddressSnapshot.state}
             </p>
             <p>{order.shippingAddressSnapshot.country}</p>
             <p>{order.shippingAddressSnapshot.phone}</p>

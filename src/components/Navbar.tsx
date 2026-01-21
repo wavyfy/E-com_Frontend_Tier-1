@@ -28,10 +28,6 @@ export default function Navbar() {
       <div style={{ marginLeft: "auto", display: "flex", gap: 12 }}>
         {/* Admin links (right aligned) */}
           {isAuthenticated && <Link href="/admin">Admin Dashboard</Link>}
-         {isAuthenticated && <Link href="/admin/products">Admin Products</Link>}
-        {isAuthenticated && <Link href="/admin/users">Admin Users</Link>}
-        {isAuthenticated && <Link href="/admin/orders">Admin Orders</Link>}
-        {isAuthenticated && <Link href="/admin/payments">Admin Payments</Link>}
         {isAuthenticated && <button onClick={logout}>Logout</button>}
       </div>
     </nav>
