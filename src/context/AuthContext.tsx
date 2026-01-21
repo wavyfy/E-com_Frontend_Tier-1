@@ -10,7 +10,6 @@ import {
 } from "react";
 import { AuthAPI } from "@/lib/api/auth.api";
 import { setAccessToken as setClientAccessToken } from "@/lib/api/client";
-import { ApiError } from "@/lib/api/api-error";
 import type { Role, AuthContextType } from "@/lib/types/auth";
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -31,22 +30,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const isAuthenticated = !!accessToken;
 
-  function handleAuthError(err: unknown): never {
-    if (
-      err instanceof ApiError &&
-      typeof err.code === "string" &&
-      ["AUTH_REQUIRED", "AUTH_INVALID_TOKEN", "AUTH_TOKEN_EXPIRED"].includes(
-        err.code,
-      )
-    ) {
-      setAccessToken(null);
-      setRole(null);
-      setClientAccessToken(null);
-    }
-    throw err;
-  }
-
-  //  Restore session (AUTH ONLY)
+  // 🔑 Client-only session restore
   useEffect(() => {
     let cancelled = false;
 
@@ -75,25 +59,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   async function login(email: string, password: string) {
-    try {
-      const { accessToken } = await AuthAPI.login(email, password);
-      setAccessToken(accessToken);
-      setRole(getRoleFromToken(accessToken));
-      setClientAccessToken(accessToken);
-    } catch (err) {
-      handleAuthError(err);
-    }
+    const { accessToken } = await AuthAPI.login(email, password);
+    setAccessToken(accessToken);
+    setRole(getRoleFromToken(accessToken));
+    setClientAccessToken(accessToken);
   }
 
   async function register(email: string, password: string) {
-    try {
-      const { accessToken } = await AuthAPI.register(email, password);
-      setAccessToken(accessToken);
-      setRole(getRoleFromToken(accessToken));
-      setClientAccessToken(accessToken);
-    } catch (err) {
-      handleAuthError(err);
-    }
+    const { accessToken } = await AuthAPI.register(email, password);
+    setAccessToken(accessToken);
+    setRole(getRoleFromToken(accessToken));
+    setClientAccessToken(accessToken);
   }
 
   async function logout() {
