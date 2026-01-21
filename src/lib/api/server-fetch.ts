@@ -1,6 +1,5 @@
-// src/lib/api/server-fetch.ts
 import { cookies } from "next/headers";
-import { ApiError } from "./api-error";
+import { ApiError, } from "./api-error";
 import type { ApiErrorType } from "../types/error";
 
 function classifyStatus(status: number): ApiErrorType {
@@ -27,10 +26,12 @@ export async function serverFetch<T>(
     });
   }
 
-  // ✅ request-bound cookies (SSR-safe)
+  /* ✅ cookies() IS async in your environment */
   const cookieStore = await cookies();
-  const cookieHeader = Array.from(cookieStore)
-    .map(([name, value]) => `${name}=${value}`)
+
+  const cookieHeader = cookieStore
+    .getAll()
+    .map((c) => `${c.name}=${c.value}`)
     .join("; ");
 
   let res: Response;
@@ -39,9 +40,9 @@ export async function serverFetch<T>(
     res = await fetch(`${base}${path}`, {
       ...options,
       headers: {
-        "Content-Type": "application/json",
         ...(options.headers ?? {}),
-        ...(cookieHeader ? { Cookie: cookieHeader } : {}),
+        ...(cookieHeader ? { cookie: cookieHeader } : {}),
+        "Content-Type": "application/json",
       },
       credentials: "include",
       cache: "no-store",
@@ -63,31 +64,28 @@ export async function serverFetch<T>(
   } catch {}
 
   if (!res.ok) {
-    const type = classifyStatus(res.status);
+    const message =
+      isObject(data) && typeof data.message === "string"
+        ? data.message
+        : "Request failed";
 
-    // 🔴 SSR RULE: never crash render on auth failure
-    if (type === "AUTH") {
-      throw new ApiError({
-        type: "AUTH",
-        status: res.status,
-        message: "Authentication required",
-      });
-    }
+    const code =
+      isObject(data) && typeof data.code === "string" ? data.code : undefined;
+
+    const requestId =
+      isObject(data) && typeof data.requestId === "string"
+        ? data.requestId
+        : undefined;
+
+    const details = isObject(data) ? data.details : undefined;
 
     throw new ApiError({
-      type,
+      type: classifyStatus(res.status),
       status: res.status,
-      message:
-        isObject(data) && typeof data.message === "string"
-          ? data.message
-          : "Request failed",
-      code:
-        isObject(data) && typeof data.code === "string" ? data.code : undefined,
-      requestId:
-        isObject(data) && typeof data.requestId === "string"
-          ? data.requestId
-          : undefined,
-      details: isObject(data) ? data.details : undefined,
+      message,
+      code,
+      requestId,
+      details,
     });
   }
 

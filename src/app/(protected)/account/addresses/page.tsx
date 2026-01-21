@@ -1,25 +1,24 @@
 // app/account/addresses/page.tsx
-export const dynamic = "force-dynamic";
-
-import { fetchAddresses } from "@/lib/api/address.server";
-import { ApiError } from "@/lib/api/api-error";
-import { redirect } from "next/navigation";
 import Link from "next/link";
-import SetDefaultButton from "@/components/address/SetDefaultButton";
-import DeleteAddressButton from "@/components/address/DeleteAddressButton";
+// import { fetchAddresses } from "@/lib/api/address.server";
+// import SetDefaultButton from "@/components/address/SetDefaultButton";
+// import DeleteAddressButton from "@/components/address/DeleteAddressButton";
 import AddressLimitNotice from "@/components/address/AddressLimitNotice";
 
-export default async function AddressesPage() {
-  let addresses;
+import { debugServerFetch } from "@/lib/api/_debug-server-fetch";
 
-  try {
-    addresses = await fetchAddresses();
-  } catch (e) {
-    if (e instanceof ApiError && e.type === "AUTH") {
-      redirect("/login");
-    }
-    throw e;
-  }
+export const dynamic = "force-dynamic";
+
+type DebugAddress = Record<string, unknown>;
+
+export default async function AddressesPage() {
+  const addresses = await debugServerFetch<DebugAddress[]>("/addresses");
+
+  return (
+    <pre className="whitespace-pre-wrap break-all p-6">
+      {JSON.stringify(addresses, null, 2)}
+    </pre>
+  );
 
   if (!addresses.length) {
     return (
@@ -46,7 +45,7 @@ export default async function AddressesPage() {
         />
       </div>
 
-      <ul className="space-y-3">
+      {/* <ul className="space-y-3">
         {addresses.map((a) => (
           <li
             key={a._id}
@@ -79,7 +78,7 @@ export default async function AddressesPage() {
             </div>
           </li>
         ))}
-      </ul>
+      </ul> */}
     </div>
   );
 }
