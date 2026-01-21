@@ -41,7 +41,7 @@ export async function serverFetch<T>(
       ...options,
       headers: {
         ...(options.headers ?? {}),
-        ...(cookieHeader ? { cookie: cookieHeader } : {}),
+        ...(cookieHeader ? { Cookie: cookieHeader } : {}),
         "Content-Type": "application/json",
       },
       credentials: "include",
