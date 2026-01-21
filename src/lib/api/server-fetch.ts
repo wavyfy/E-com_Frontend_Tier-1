@@ -26,15 +26,14 @@ export async function serverFetch<T>(
     });
   }
 
-  // ✅ REQUIRED in your Next version
+  /* ✅ cookies() IS async in your environment */
   const cookieStore = await cookies();
 
-  // ✅ Explicitly typed, lint-safe
-  const cookieHeader = cookieStore
-    .getAll()
-    .map((c: { name: string; value: string }) => `${c.name}=${c.value}`)
+  const cookieHeader = Array.from(cookieStore)
+    .map(([name, value]) => `${name}=${value}`)
     .join("; ");
 
+  console.log("SSR COOKIES:", Array.from(cookieStore));
   let res: Response;
 
   try {
@@ -42,7 +41,7 @@ export async function serverFetch<T>(
       ...options,
       headers: {
         ...(options.headers ?? {}),
-        ...(cookieHeader ? { Cookie: cookieHeader } : {}),
+        ...(cookieHeader ? { cookie: cookieHeader } : {}),
         "Content-Type": "application/json",
       },
       credentials: "include",
@@ -55,7 +54,9 @@ export async function serverFetch<T>(
     });
   }
 
-  if (res.status === 204) return null as T;
+  if (res.status === 204) {
+    return null as T;
+  }
 
   let data: unknown = null;
   try {
@@ -63,20 +64,28 @@ export async function serverFetch<T>(
   } catch {}
 
   if (!res.ok) {
+    const message =
+      isObject(data) && typeof data.message === "string"
+        ? data.message
+        : "Request failed";
+
+    const code =
+      isObject(data) && typeof data.code === "string" ? data.code : undefined;
+
+    const requestId =
+      isObject(data) && typeof data.requestId === "string"
+        ? data.requestId
+        : undefined;
+
+    const details = isObject(data) ? data.details : undefined;
+
     throw new ApiError({
       type: classifyStatus(res.status),
       status: res.status,
-      message:
-        isObject(data) && typeof data.message === "string"
-          ? data.message
-          : "Request failed",
-      code:
-        isObject(data) && typeof data.code === "string" ? data.code : undefined,
-      requestId:
-        isObject(data) && typeof data.requestId === "string"
-          ? data.requestId
-          : undefined,
-      details: isObject(data) ? data.details : undefined,
+      message,
+      code,
+      requestId,
+      details,
     });
   }
 
