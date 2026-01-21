@@ -10,7 +10,7 @@ export function AdminCreateButton() {
 
   return (
     <div style={{ marginBottom: 12 }}>
-      <Link href="/products/new">+ Create Product</Link>
+      <Link href="/admin/products/new">Create Product</Link>
     </div>
   );
 }

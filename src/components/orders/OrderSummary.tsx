@@ -1,4 +1,6 @@
-export default function OrderSummary({ order }: any) {
+import type { Order } from "@/lib/types/order";
+
+export default function OrderSummary({ order }: { order: Order }) {
   return (
     <div className="border rounded p-4">
       <h2 className="font-semibold">Order Summary</h2>

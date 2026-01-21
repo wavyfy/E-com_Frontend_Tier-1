@@ -1,57 +1,53 @@
-import { cookies } from "next/headers";
-import type { Order, PaginatedOrders } from "./order.api";
+import { serverFetch } from "./server-fetch";
+import type {
+  Order,
+  OrderStatus,
+  AdminOrderListResponse,
+  AdminOrderDetail,
+} from "../types/order";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL!;
+/* ================= USER (SERVER) ================= */
 
-/* 🔒 helper: serialize cookies correctly */
-async function serializeCookies(): Promise<string> {
-  const cookieStore = await cookies(); // ✅ MUST await
-
-  return cookieStore
-    .getAll()
-    .map((c: { name: string; value: string }) => `${c.name}=${c.value}`)
-    .join("; ");
+// fetch single order (checkout / pay / address pages)
+export function fetchOrderById(orderId: string): Promise<Order> {
+  return serverFetch<Order>(`/orders/${orderId}`);
 }
 
-/* ================= ADMIN (SERVER ONLY) ================= */
-
-export async function fetchAdminOrders(
+// list user orders (account page)
+export function fetchOrders(
   page = 1,
-  limit = 10
-): Promise<PaginatedOrders> {
-  const res = await fetch(
-    `${API_URL}/orders/admin?page=${page}&limit=${limit}`,
-    {
-      headers: {
-        Cookie: await serializeCookies(), // ✅ awaited
-      },
-      cache: "no-store",
-    }
-  );
-
-  if (!res.ok) {
-    throw new Error("Failed to fetch admin orders");
-  }
-
-  return res.json();
+  limit = 10,
+): Promise<{ page: number; limit: number; items: Order[] }> {
+  return serverFetch(`/orders?page=${page}&limit=${limit}`);
 }
 
-export async function fetchAdminOrderById(
-  orderId: string
-): Promise<Order> {
-  const res = await fetch(
-    `${API_URL}/orders/admin/${orderId}`,
-    {
-      headers: {
-        Cookie: await serializeCookies(), // ✅ awaited
-      },
-      cache: "no-store",
-    }
+export function fetchLatestOrderWithAddress() {
+  return serverFetch<Order | null>("/orders/latest-with-address");
+}
+
+/* ================= ADMIN ================= */
+
+export function fetchAdminOrders(
+  page = 1,
+  limit = 10,
+): Promise<AdminOrderListResponse> {
+  return serverFetch<AdminOrderListResponse>(
+    `/admin/orders?page=${page}&limit=${limit}`,
   );
+}
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch admin order");
-  }
+export function fetchAdminOrderById(
+  orderId: string,
+): Promise<AdminOrderDetail> {
+  return serverFetch<AdminOrderDetail>(`/admin/orders/${orderId}`);
+}
 
-  return res.json();
+export function updateAdminOrderStatus(
+  orderId: string,
+  status: OrderStatus,
+): Promise<AdminOrderDetail> {
+  return serverFetch<AdminOrderDetail>(`/admin/orders/${orderId}/status`, {
+    method: "PATCH",
+    body: JSON.stringify({ status }),
+  });
 }

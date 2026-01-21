@@ -1,15 +1,5 @@
 "use client";
-
-type ConfirmModalProps = {
-  open: boolean;
-  title: string;
-  message: string;
-  confirmText?: string;
-  cancelText?: string;
-  loading?: boolean;
-  onConfirm: () => void;
-  onCancel: () => void;
-};
+import type { ConfirmModalProps } from "@/lib/types/common";
 
 export default function ConfirmModal({
   open,

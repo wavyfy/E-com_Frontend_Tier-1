@@ -1,12 +1,4 @@
-export type ApiErrorType =
-  | "AUTH"
-  | "VALIDATION"
-  | "NOT_FOUND"
-  | "RATE_LIMIT"
-  | "SERVER"
-  | "CONFLICT"
-  | "NETWORK"
-  | "UNKNOWN";
+import type { ApiErrorType } from "../types/error";
 
 export class ApiError extends Error {
   readonly type: ApiErrorType;

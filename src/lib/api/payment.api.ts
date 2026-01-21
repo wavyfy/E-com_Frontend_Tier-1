@@ -1,16 +1,9 @@
-// src/lib/api/payment.api.ts
 import { api } from "./client";
+import type { PaymentInitiateResponse } from "../types/payment";
 
 export const PaymentAPI = {
   initiate(orderId: string) {
-    return api<{
-      razorpayOrderId: string;
-      amount: number;
-      currency: string;
-      key: string;
-      attempt: number;
-      maxRetries: number;
-    }>(`/payments/${orderId}/initiate`, {
+    return api<PaymentInitiateResponse>(`/payments/${orderId}/initiate`, {
       method: "POST",
     });
   },

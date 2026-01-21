@@ -1,11 +1,4 @@
-type Props = {
-  history: {
-    from: string;
-    to: string;
-    changedBy: string;
-    changedAt: string;
-  }[];
-};
+import type { Props } from "@/lib/types/order";
 
 export default function OrderStatusTimeline({ history }: Props) {
   if (!history.length) {

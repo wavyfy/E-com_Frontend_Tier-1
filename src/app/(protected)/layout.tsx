@@ -21,7 +21,6 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
   }
 
   if (!isAuthenticated) {
-    // prevent protected UI flash
     return null;
   }
 

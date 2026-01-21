@@ -9,7 +9,7 @@ export function AdminEditButton({ productId }: { productId: string }) {
   if (role !== "admin") return null;
 
   return (
-    <Link href={`/products/edit/${productId}`} style={{ marginLeft: 8 }}>
+    <Link href={`/admin/products/edit/${productId}`} style={{ marginLeft: 8 }}>
       Edit
     </Link>
   );

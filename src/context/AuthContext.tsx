@@ -11,18 +11,7 @@ import {
 import { AuthAPI } from "@/lib/api/auth.api";
 import { setAccessToken as setClientAccessToken } from "@/lib/api/client";
 import { ApiError } from "@/lib/api/api-error";
-
-type Role = "user" | "admin" | null;
-
-type AuthContextType = {
-  accessToken: string | null;
-  role: Role;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
-};
+import type { Role, AuthContextType } from "@/lib/types/auth";
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -47,7 +36,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       err instanceof ApiError &&
       typeof err.code === "string" &&
       ["AUTH_REQUIRED", "AUTH_INVALID_TOKEN", "AUTH_TOKEN_EXPIRED"].includes(
-        err.code
+        err.code,
       )
     ) {
       setAccessToken(null);
@@ -57,7 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     throw err;
   }
 
-  // 🔄 Restore session (AUTH ONLY)
+  //  Restore session (AUTH ONLY)
   useEffect(() => {
     let cancelled = false;
 

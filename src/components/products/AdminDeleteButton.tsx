@@ -17,7 +17,7 @@ export function AdminDeleteButton({ productId }: { productId: string }) {
     try {
       await ProductAPI.delete(productId);
       router.refresh();
-      router.push("/products");
+      router.push("/admin/products");
     } catch (err) {
       const message = err instanceof Error ? err.message : "Not allowed";
       alert(message);

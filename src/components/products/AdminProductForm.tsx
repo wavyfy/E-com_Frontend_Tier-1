@@ -4,14 +4,7 @@ import { useState } from "react";
 import { ProductAPI } from "@/lib/api/product.api";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-
-type Props = {
-  product?: {
-    _id: string;
-    name: string;
-    price: number;
-  };
-};
+import type { Props } from "@/lib/types/product";
 
 export function AdminProductForm({ product }: Props) {
   const { role, isLoading } = useAuth();
@@ -36,7 +29,7 @@ export function AdminProductForm({ product }: Props) {
         await ProductAPI.create({ name, price });
       }
 
-      router.push("/products");
+      router.push("/admin/products");
       router.refresh();
     } finally {
       setSaving(false);

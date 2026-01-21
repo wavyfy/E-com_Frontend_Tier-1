@@ -1,8 +1,9 @@
 import { api } from "./client";
+import type { User } from "../types/user";
 
 export const UserAPI = {
   me(accessToken: string) {
-    return api<{ id: string; role: string }>("/users/me", {
+    return api<User>("/users/me", {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },

@@ -1,32 +1,29 @@
 // src/lib/api/product.server.ts
 import { serverFetch } from "./server-fetch";
+import type { Product, ProductListResponse } from "../types/product";
 
-export type Product = {
-  _id: string;
-  name: string;
-  slug: string;
-  price: number;
-  description?: string;
-  stock: number;
-};
-
-export type ProductListResponse = {
-  page: number;
-  limit: number;
-  items: Product[];
-};
+/* ================= USER ================= */
 
 export async function fetchProducts(
   page = 1,
-  limit = 20
+  limit = 20,
 ): Promise<ProductListResponse> {
-  return serverFetch<ProductListResponse>(
-    `/products?page=${page}&limit=${limit}`
-  );
+  return serverFetch(`/products?page=${page}&limit=${limit}`);
 }
 
-export async function fetchProductBySlug(
-  slug: string
-): Promise<Product> {
-  return serverFetch<Product>(`/products/slug/${slug}`);
+export async function fetchProductBySlug(slug: string): Promise<Product> {
+  return serverFetch(`/products/slug/${slug}`);
+}
+
+/* ================= ADMIN ================= */
+
+export async function fetchAdminProducts(
+  page = 1,
+  limit = 20,
+): Promise<ProductListResponse> {
+  return serverFetch(`/admin/products?page=${page}&limit=${limit}`);
+}
+
+export async function fetchAdminProductById(id: string): Promise<Product> {
+  return serverFetch(`/admin/products/${id}`);
 }

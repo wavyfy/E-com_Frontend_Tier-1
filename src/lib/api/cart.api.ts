@@ -1,6 +1,6 @@
 // src/lib/api/cart.api.ts
 import { api } from "./client";
-import { Cart } from "../types/cart";
+import type { Cart } from "../types/cart";
 
 export const CartAPI = {
   get(): Promise<Cart> {

@@ -30,7 +30,7 @@ async function parseError(res: Response) {
 
 export async function api<T = unknown>(
   path: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
 ): Promise<T> {
   const base = process.env.NEXT_PUBLIC_API_URL;
   if (!base) {
@@ -76,10 +76,7 @@ export async function api<T = unknown>(
   }
 
   // ---------- NON-AUTH ERRORS ----------
-  // IMPORTANT:
-  // - Do NOT special-case 400 here
-  // - Preserve error code
-  // - Let feature-level code decide what is recoverable
+
   if (res.status !== 401 && res.status !== 403) {
     throw new ApiError({
       type: classifyError(res.status),

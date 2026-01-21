@@ -1,10 +1,9 @@
 import Link from "next/link";
 import { fetchProductBySlug } from "@/lib/api/product.server";
-import { AdminProductActions } from "@/components/products/AdminProductActions";
 import { ApiError } from "@/lib/api/api-error";
 import { notFound } from "next/navigation";
 import AddToCartButton from "@/components/cart/AddToCartButton";
-import type { Product } from "@/lib/api/product.server";
+import type { Product } from "@/lib/types/product";
 
 export default async function ProductDetailPage({
   params,
@@ -34,13 +33,7 @@ export default async function ProductDetailPage({
       </div>
 
       {/* Product layout */}
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: 24,
-        }}
-      >
+      <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
         {/* Product Info */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <h1>{product.name}</h1>
@@ -53,10 +46,9 @@ export default async function ProductDetailPage({
           <p>Stock: {product.stock}</p>
         </div>
 
-        {/* Actions */}
+        {/* User Actions */}
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
           <AddToCartButton productId={product._id} />
-          <AdminProductActions productId={product._id} />
         </div>
       </div>
     </main>

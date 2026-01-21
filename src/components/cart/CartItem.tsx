@@ -2,21 +2,7 @@
 "use client";
 
 import { ApiError } from "@/lib/api/api-error";
-
-type CartItemProps = {
-  item: {
-    productId: string;
-    name: string;
-    quantity: number;
-    unitPrice: number;
-    subtotal: number;
-    stock: number;
-  };
-  onIncrease: () => Promise<void>;
-  onDecrease: () => Promise<void>;
-  onRemove: () => Promise<void>;
-  disabled?: boolean;
-};
+import type { CartItemProps } from "@/lib/types/cart";
 
 function handleCartItemError(err: unknown) {
   if (err instanceof ApiError) {

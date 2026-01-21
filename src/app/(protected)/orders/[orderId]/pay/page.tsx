@@ -4,23 +4,24 @@ import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { OrderAPI } from "@/lib/api/order.api";
 import { api } from "@/lib/api/client";
-import type { Order } from "@/lib/api/order.api";
+import type { Order } from "@/lib/types/order";
 import { ApiError } from "@/lib/api/api-error";
 import { OrderPaymentTimer } from "@/components/orders/OrderPaymentTimer";
 
 export default function OrderPayPage() {
   const { orderId } = useParams<{ orderId: string }>();
   const router = useRouter();
-
   const [order, setOrder] = useState<Order | null>(null);
+  const [loaded, setLoaded] = useState(false); // 🔑 fetch lifecycle guard
   const [paying, setPaying] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [redirectIn, setRedirectIn] = useState<number | null>(null);
 
   const redirectStartedRef = useRef(false);
   const redirectCancelledRef = useRef(false);
+  const handlingTransitionRef = useRef(false);
 
-  /* ---------- derived (NO narrowing bugs) ---------- */
+  /* ---------- derived ---------- */
   const MAX_RETRIES = 3;
   const status = order?.status;
 
@@ -29,26 +30,32 @@ export default function OrderPayPage() {
 
   const isCreated = status === "CREATED";
   const isPending = status === "PAYMENT_PENDING";
-
-  // lock ONLY after attempt finishes and order returns to CREATED
   const retryExhausted = isCreated && attemptsUsed >= MAX_RETRIES;
-
   const paymentLocked = paying || isPending;
-
-  /* ---------- reset redirect when unlocked ---------- */
-  useEffect(() => {
-    if (!retryExhausted) {
-      redirectStartedRef.current = false;
-      redirectCancelledRef.current = false;
-      setRedirectIn(null);
-    }
-  }, [retryExhausted]);
 
   /* ---------- initial fetch ---------- */
   useEffect(() => {
     if (!orderId) return;
-    OrderAPI.getById(orderId).then(setOrder);
+
+    OrderAPI.getById(orderId)
+      .then((data) => {
+        setOrder(data);
+        setLoaded(true);
+      })
+      .catch(() => {
+        setLoaded(true);
+      });
   }, [orderId]);
+
+  /* ---------- address guard (SAFE) ---------- */
+  useEffect(() => {
+    if (!loaded) return;
+    if (!order) return;
+
+    if (!order.shippingAddressSnapshot) {
+      router.replace(`/orders/${order._id}/address`);
+    }
+  }, [loaded, order, router]);
 
   /* ---------- poll while PAYMENT_PENDING ---------- */
   useEffect(() => {
@@ -62,29 +69,42 @@ export default function OrderPayPage() {
     return () => clearInterval(interval);
   }, [order, isPending]);
 
-  /* ---------- detect REAL failure (backend-driven) ---------- */
+  /* ---------- transition handler ---------- */
   useEffect(() => {
-    if (!order || retryExhausted) return;
+    if (!order) return;
 
     const last = order.statusHistory.at(-1);
-    if (last?.from === "PAYMENT_PENDING" && last?.to === "CREATED") {
+    if (!last) return;
+    if (handlingTransitionRef.current) return;
+
+    handlingTransitionRef.current = true;
+
+    if (last.from === "PAYMENT_PENDING" && last.to === "CREATED") {
       setMessage("Payment failed. Please try again.");
+      setRedirectIn(null);
+      redirectStartedRef.current = false;
     }
+
+    if (retryExhausted && !redirectStartedRef.current) {
+      redirectStartedRef.current = true;
+      setRedirectIn(5);
+    }
+
+    queueMicrotask(() => {
+      handlingTransitionRef.current = false;
+    });
   }, [order, retryExhausted]);
 
   /* ---------- redirect countdown ---------- */
   useEffect(() => {
-    if (!retryExhausted || redirectStartedRef.current) return;
-
-    redirectStartedRef.current = true;
-    setRedirectIn(5);
+    if (redirectIn === null || redirectIn <= 0) return;
 
     const interval = setInterval(() => {
       setRedirectIn((prev) => (prev === null ? null : prev - 1));
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [retryExhausted]);
+  }, [redirectIn]);
 
   /* ---------- redirect ---------- */
   useEffect(() => {
@@ -116,11 +136,9 @@ export default function OrderPayPage() {
         amount: payment.amount,
         currency: payment.currency,
         order_id: payment.razorpayOrderId,
-
         handler: () => {
           router.replace(`/orders/${order._id}?justPaid=1`);
         },
-
         modal: {
           ondismiss: async () => {
             try {
@@ -138,13 +156,18 @@ export default function OrderPayPage() {
       rzp.open();
     } catch (err) {
       if (err instanceof ApiError) {
+        if (err.code === "ADDRESS_REQUIRED") {
+          router.replace(`/orders/${order._id}/address`);
+          return;
+        }
+
         if (err.code === "PAYMENT_IN_PROGRESS") {
           setMessage(
-            "Payment is already open in another tab. Please complete it there."
+            "Payment is already open in another tab. Please complete it there.",
           );
         } else if (err.code === "PAYMENT_RETRY_LIMIT_REACHED") {
           setMessage(
-            "You have reached the maximum number of payment attempts."
+            "You have reached the maximum number of payment attempts.",
           );
         } else {
           setMessage(err.message || "Unable to start payment.");
@@ -155,7 +178,9 @@ export default function OrderPayPage() {
     }
   }
 
-  if (!order) return <p className="p-4">Loading…</p>;
+  /* ---------- render guards ---------- */
+  if (!loaded) return <p className="p-4">Loading…</p>;
+  if (!order) return <p className="p-4">Order not found</p>;
 
   return (
     <main className="max-w-3xl mx-auto p-4 space-y-4">
@@ -174,13 +199,30 @@ export default function OrderPayPage() {
         </>
       )}
 
-      {isCreated && retryExhausted && (
-        <>
-          <p className="text-red-600">
-            You’ve used all payment attempts for this order.
-          </p>
-          <p className="text-gray-600">Redirecting to cart in {redirectIn}s…</p>
-        </>
+      {order.shippingAddressSnapshot && (
+        <section className="border rounded p-3 space-y-2">
+          <div className="flex items-center justify-between">
+            <h2 className="font-medium">Delivery Address</h2>
+            <button
+              onClick={() => router.push(`/orders/${order._id}/address`)}
+              className="text-sm text-blue-600 underline"
+            >
+              Change
+            </button>
+          </div>
+
+          <div className="text-sm text-gray-700 leading-relaxed">
+            <p className="font-medium">{order.shippingAddressSnapshot.name}</p>
+            <p>{order.shippingAddressSnapshot.line}</p>
+            <p>
+              {order.shippingAddressSnapshot.postalCode}
+              {order.shippingAddressSnapshot.city},{" "}
+              {order.shippingAddressSnapshot.state}{" "}
+            </p>
+            <p>{order.shippingAddressSnapshot.country}</p>
+            <p>{order.shippingAddressSnapshot.phone}</p>
+          </div>
+        </section>
       )}
 
       {isCreated && !retryExhausted && (
@@ -192,30 +234,15 @@ export default function OrderPayPage() {
         </>
       )}
 
-      {isCreated &&
-        (retryExhausted ? (
-          <button
-            onClick={() => {
-              redirectCancelledRef.current = true;
-              router.push("/cart");
-            }}
-            className="px-4 py-2 bg-black text-white rounded"
-          >
-            Go to cart now
-          </button>
-        ) : (
-          <button
-            onClick={handlePay}
-            disabled={paymentLocked}
-            className="px-4 py-2 bg-black text-white rounded disabled:bg-gray-400 disabled:cursor-not-allowed"
-          >
-            {paymentLocked
-              ? "Payment in progress…"
-              : paying
-              ? "Opening payment…"
-              : "Pay Now"}
-          </button>
-        ))}
+      {isCreated && (
+        <button
+          onClick={handlePay}
+          disabled={paymentLocked}
+          className="px-4 py-2 bg-black text-white rounded disabled:bg-gray-400"
+        >
+          {paymentLocked ? "Payment in progress…" : "Pay Now"}
+        </button>
+      )}
     </main>
   );
 }

@@ -5,15 +5,7 @@ import { Cart } from "@/lib/types/cart";
 import { CartAPI } from "@/lib/api/cart.api";
 import { useAuth } from "@/context/AuthContext";
 import { ApiError } from "@/lib/api/api-error";
-
-type CartContextValue = {
-  cart: Cart | null;
-  loading: boolean;
-  addItem: (productId: string, qty?: number) => Promise<void>;
-  updateItem: (productId: string, qty: number) => Promise<void>;
-  removeItem: (productId: string) => Promise<void>;
-  refresh: () => Promise<void>;
-};
+import type { CartContextValue } from "@/lib/types/cart";
 
 const CartContext = createContext<CartContextValue | null>(null);
 

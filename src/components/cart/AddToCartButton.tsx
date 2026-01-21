@@ -3,11 +3,7 @@
 
 import { useState } from "react";
 import { useCart } from "@/context/CartContext";
-
-type AddToCartButtonProps = {
-  productId: string;
-  quantity?: number; // optional, defaults to 1
-};
+import type { AddToCartButtonProps } from "@/lib/types/cart";
 
 export default function AddToCartButton({
   productId,

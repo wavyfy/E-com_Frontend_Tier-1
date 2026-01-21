@@ -9,3 +9,26 @@ export interface Product {
   createdAt: string;
   updatedAt: string;
 }
+
+// export type Product = {
+//   _id: string;
+//   name: string;
+//   slug: string;
+//   price: number;
+//   description?: string;
+//   stock: number;
+// };
+
+export type ProductListResponse = {
+  page: number;
+  limit: number;
+  items: Product[];
+};
+
+export type Props = {
+  product?: {
+    _id: string;
+    name: string;
+    price: number;
+  };
+};

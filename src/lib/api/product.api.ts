@@ -1,32 +1,28 @@
+// src/lib/api/product.api.ts
 import { api } from "./client";
 import { Product } from "@/lib/types/product";
 
 export const ProductAPI = {
-   list: (page = 1, limit = 20) =>
-    api<{ page: number; limit: number; items: Product[] }>(
-      `/products?page=${page}&limit=${limit}`
-    ),
+  /* ===== USER ===== */
 
-  getById: (id: string) =>
-    api<Product>(`/products/${id}`),
+  getBySlug: (slug: string) => api<Product>(`/products/slug/${slug}`),
 
-  getBySlug: (slug: string) =>
-    api<Product>(`/products/slug/${slug}`),
-  
-create: (data: { name: string; price: number }) =>
-  api<Product>("/products", {
-    method: "POST",
-    body: JSON.stringify(data),
-  }),
+  /* ===== ADMIN (MUTATIONS ONLY) ===== */
 
+  create: (data: { name: string; price: number }) =>
+    api<Product>("/admin/products", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
 
- update: (id: string, data: { name: string; price: number }) =>
-    api<Product>(`/products/${id}`, {
+  update: (id: string, data: { name: string; price: number }) =>
+    api<Product>(`/admin/products/${id}`, {
       method: "PATCH",
       body: JSON.stringify(data),
     }),
 
   delete: (id: string) =>
-  api<void>(`/products/${id}`, { method: "DELETE" }),
-
+    api<void>(`/admin/products/${id}`, {
+      method: "DELETE",
+    }),
 };

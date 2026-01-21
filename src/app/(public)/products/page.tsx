@@ -2,10 +2,9 @@ import Link from "next/link";
 import { fetchProducts } from "@/lib/api/product.server";
 import { ApiError } from "@/lib/api/api-error";
 import { notFound } from "next/navigation";
-import { AdminCreateButton } from "@/components/products/AdminCreateButton";
-import { AdminProductActions } from "@/components/products/AdminProductActions";
 import AddToCartButton from "@/components/cart/AddToCartButton";
-import type { Product } from "@/lib/api/product.server";
+import type { Product } from "@/lib/types/product";
+import { Pagination } from "@/components/common/Pagination";
 
 export default async function ProductsPage({
   searchParams,
@@ -18,10 +17,12 @@ export default async function ProductsPage({
   const limit = 20;
 
   let items: Product[] = [];
+  let hasNextPage = false;
 
   try {
     const res = await fetchProducts(currentPage, limit);
     items = res.items;
+    hasNextPage = items.length === limit;
   } catch (err) {
     if (err instanceof ApiError && err.type === "NOT_FOUND") {
       notFound();
@@ -34,7 +35,6 @@ export default async function ProductsPage({
       {/* Header */}
       <div style={{ marginBottom: 24 }}>
         <h1 style={{ marginBottom: 12 }}>Products</h1>
-        <AdminCreateButton />
       </div>
 
       {/* Product Grid */}
@@ -70,28 +70,17 @@ export default async function ProductsPage({
             {/* Actions */}
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               <AddToCartButton productId={product._id} />
-              <AdminProductActions productId={product._id} />
             </div>
           </li>
         ))}
       </ul>
 
       {/* Pagination */}
-      <div
-        style={{
-          marginTop: 32,
-          display: "flex",
-          justifyContent: "space-between",
-        }}
-      >
-        {currentPage > 1 ? (
-          <Link href={`/products?page=${currentPage - 1}`}>Prev</Link>
-        ) : (
-          <span />
-        )}
-
-        <Link href={`/products?page=${currentPage + 1}`}>Next</Link>
-      </div>
+      <Pagination
+        currentPage={currentPage}
+        basePath="/products"
+        hasNextPage={hasNextPage}
+      />
     </main>
   );
 }

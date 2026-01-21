@@ -1,4 +1,4 @@
-import type { OrderItem } from "@/lib/api/order.api";
+import type { OrderItem } from "@/lib/types/order";
 
 export default function OrderItemsTable({ items }: { items: OrderItem[] }) {
   return (

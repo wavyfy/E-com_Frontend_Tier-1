@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
-import { ApiError, ApiErrorType } from "./api-error";
+import { ApiError, } from "./api-error";
+import type { ApiErrorType } from "../types/error";
 
 function classifyStatus(status: number): ApiErrorType {
   if (status === 401 || status === 403) return "AUTH";
@@ -15,7 +16,7 @@ function isObject(v: unknown): v is Record<string, unknown> {
 
 export async function serverFetch<T>(
   path: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
 ): Promise<T> {
   const base = process.env.NEXT_PUBLIC_API_URL;
   if (!base) {
@@ -25,7 +26,9 @@ export async function serverFetch<T>(
     });
   }
 
+  /* ✅ cookies() IS async in your environment */
   const cookieStore = await cookies();
+
   const cookieHeader = cookieStore
     .getAll()
     .map((c) => `${c.name}=${c.value}`)
@@ -37,11 +40,11 @@ export async function serverFetch<T>(
     res = await fetch(`${base}${path}`, {
       ...options,
       headers: {
-        "Content-Type": "application/json",
+        ...(options.headers ?? {}),
         ...(cookieHeader ? { cookie: cookieHeader } : {}),
-        ...(options.headers || {}),
+        "Content-Type": "application/json",
       },
-      credentials: "include", // ✅ CRITICAL FIX
+      credentials: "include",
       cache: "no-store",
     });
   } catch {
@@ -67,9 +70,7 @@ export async function serverFetch<T>(
         : "Request failed";
 
     const code =
-      isObject(data) && typeof data.code === "string"
-        ? data.code
-        : undefined;
+      isObject(data) && typeof data.code === "string" ? data.code : undefined;
 
     const requestId =
       isObject(data) && typeof data.requestId === "string"

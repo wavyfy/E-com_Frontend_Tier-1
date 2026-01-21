@@ -1,4 +1,4 @@
-// src/types/razorpay.d.ts
+// src/lib/types/razorpay.d.ts
 export {};
 
 declare global {

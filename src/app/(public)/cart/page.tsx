@@ -33,8 +33,11 @@ export default function CartPage() {
 
       const order = await OrderAPI.checkout();
 
-      // ✅ Redirect to payment step (NOT confirmation)
-      router.push(`/orders/${order._id}/pay`);
+      if (order.shippingAddressSnapshot) {
+        router.push(`/orders/${order._id}/pay`);
+      } else {
+        router.push(`/orders/${order._id}/address`);
+      }
     } catch (err) {
       if (err instanceof ApiError && err.type === "AUTH") {
         router.push("/login");
@@ -82,7 +85,7 @@ export default function CartPage() {
           disabled={checkingOut}
           className="px-4 py-2 bg-black text-white rounded"
         >
-          {checkingOut ? "Processing..." : "Proceed to Payment"}
+          {checkingOut ? "Processing..." : "Proceed to Checkout"}
         </button>
       </div>
     </div>
