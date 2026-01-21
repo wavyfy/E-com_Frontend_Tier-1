@@ -1,13 +1,25 @@
 // app/account/addresses/page.tsx
+export const dynamic = "force-dynamic";
+
 import { fetchAddresses } from "@/lib/api/address.server";
+import { ApiError } from "@/lib/api/api-error";
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import SetDefaultButton from "@/components/address/SetDefaultButton";
 import DeleteAddressButton from "@/components/address/DeleteAddressButton";
 import AddressLimitNotice from "@/components/address/AddressLimitNotice";
 
-
 export default async function AddressesPage() {
-  const addresses = await fetchAddresses();
+  let addresses;
+
+  try {
+    addresses = await fetchAddresses();
+  } catch (e) {
+    if (e instanceof ApiError && e.type === "AUTH") {
+      redirect("/login");
+    }
+    throw e;
+  }
 
   if (!addresses.length) {
     return (

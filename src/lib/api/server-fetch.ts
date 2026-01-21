@@ -1,3 +1,4 @@
+// src/lib/api/server-fetch.ts
 import { cookies } from "next/headers";
 import { ApiError } from "./api-error";
 import type { ApiErrorType } from "../types/error";
@@ -26,11 +27,10 @@ export async function serverFetch<T>(
     });
   }
 
-  // ✅ request-bound cookies
+  // ✅ request-bound cookies (SSR-safe)
   const cookieStore = await cookies();
-  const cookieHeader = cookieStore
-    .getAll()
-    .map((c) => `${c.name}=${c.value}`)
+  const cookieHeader = Array.from(cookieStore)
+    .map(([name, value]) => `${name}=${value}`)
     .join("; ");
 
   let res: Response;
@@ -40,11 +40,7 @@ export async function serverFetch<T>(
       ...options,
       headers: {
         "Content-Type": "application/json",
-
-        // allow callers to add headers
         ...(options.headers ?? {}),
-
-        // 🔴 Cookie MUST be capitalized and applied last
         ...(cookieHeader ? { Cookie: cookieHeader } : {}),
       },
       credentials: "include",
@@ -67,21 +63,20 @@ export async function serverFetch<T>(
   } catch {}
 
   if (!res.ok) {
-    const status = res.status;
-    const type = classifyStatus(status);
+    const type = classifyStatus(res.status);
 
-    // 🔴 CRITICAL: SSR must not crash on expected auth failure
+    // 🔴 SSR RULE: never crash render on auth failure
     if (type === "AUTH") {
       throw new ApiError({
         type: "AUTH",
-        status,
+        status: res.status,
         message: "Authentication required",
       });
     }
 
     throw new ApiError({
       type,
-      status,
+      status: res.status,
       message:
         isObject(data) && typeof data.message === "string"
           ? data.message
