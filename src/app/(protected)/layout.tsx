@@ -3,6 +3,7 @@
 import { ReactNode, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+export const dynamic = "force-dynamic";
 
 export default function ProtectedLayout({ children }: { children: ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();

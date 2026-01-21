@@ -4,7 +4,7 @@ import Link from "next/link";
 import SetDefaultButton from "@/components/address/SetDefaultButton";
 import DeleteAddressButton from "@/components/address/DeleteAddressButton";
 import AddressLimitNotice from "@/components/address/AddressLimitNotice";
-export const dynamic = "force-dynamic";
+
 
 export default async function AddressesPage() {
   const addresses = await fetchAddresses();
