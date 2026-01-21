@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { ApiError, } from "./api-error";
+import { ApiError } from "./api-error";
 import type { ApiErrorType } from "../types/error";
 
 function classifyStatus(status: number): ApiErrorType {
@@ -26,12 +26,13 @@ export async function serverFetch<T>(
     });
   }
 
-  /* ✅ cookies() IS async in your environment */
+  // ✅ REQUIRED in your Next version
   const cookieStore = await cookies();
 
+  // ✅ Explicitly typed, lint-safe
   const cookieHeader = cookieStore
     .getAll()
-    .map((c) => `${c.name}=${c.value}`)
+    .map((c: { name: string; value: string }) => `${c.name}=${c.value}`)
     .join("; ");
 
   let res: Response;
@@ -54,9 +55,7 @@ export async function serverFetch<T>(
     });
   }
 
-  if (res.status === 204) {
-    return null as T;
-  }
+  if (res.status === 204) return null as T;
 
   let data: unknown = null;
   try {
@@ -64,28 +63,20 @@ export async function serverFetch<T>(
   } catch {}
 
   if (!res.ok) {
-    const message =
-      isObject(data) && typeof data.message === "string"
-        ? data.message
-        : "Request failed";
-
-    const code =
-      isObject(data) && typeof data.code === "string" ? data.code : undefined;
-
-    const requestId =
-      isObject(data) && typeof data.requestId === "string"
-        ? data.requestId
-        : undefined;
-
-    const details = isObject(data) ? data.details : undefined;
-
     throw new ApiError({
       type: classifyStatus(res.status),
       status: res.status,
-      message,
-      code,
-      requestId,
-      details,
+      message:
+        isObject(data) && typeof data.message === "string"
+          ? data.message
+          : "Request failed",
+      code:
+        isObject(data) && typeof data.code === "string" ? data.code : undefined,
+      requestId:
+        isObject(data) && typeof data.requestId === "string"
+          ? data.requestId
+          : undefined,
+      details: isObject(data) ? data.details : undefined,
     });
   }
 
