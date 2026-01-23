@@ -1,6 +1,5 @@
 import { cookies, headers } from "next/headers";
 import { ApiError } from "./api-error";
-// import type { ApiErrorType } from "../types/error";
 
 export async function serverFetch<T>(
   path: string,
@@ -14,15 +13,19 @@ export async function serverFetch<T>(
     });
   }
 
-  const cookieStore = await cookies(); // Promise in your setup
-  const reqHeaders = await headers(); // Promise in your setup
+  // ✅ MUST await in your Next version
+  const cookieStore = await cookies();
+  const reqHeaders = await headers();
 
-  const cookieHeader = cookieStore
-    .getAll()
-    .map((c) => `${c.name}=${c.value}`)
-    .join("; ");
+  const allCookies = cookieStore.getAll();
+
+  const cookieHeader = allCookies.map((c) => `${c.name}=${c.value}`).join("; ");
 
   const authHeader = reqHeaders.get("authorization");
+
+  // 🔍 DEBUG (THIS is what matters)
+  console.log("🟨 serverFetch allCookies:", allCookies);
+  console.log("🟨 serverFetch cookieHeader:", cookieHeader);
 
   const res = await fetch(`${base}${path}`, {
     ...options,
@@ -32,8 +35,7 @@ export async function serverFetch<T>(
       ...(authHeader ? { authorization: authHeader } : {}),
       "Content-Type": "application/json",
     },
-    credentials: "include",
-    cache: "no-store",
+    cache: "no-store", // credentials is irrelevant for SSR
   });
 
   let data: unknown = null;
@@ -61,8 +63,6 @@ export async function serverFetch<T>(
       details: data,
     });
   }
-  console.log("🟨 serverFetch cookies:", cookies);
-  console.log("🟨 serverFetch cookie header:", cookieHeader);
 
   return data as T;
 }
