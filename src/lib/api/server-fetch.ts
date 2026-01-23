@@ -1,6 +1,12 @@
 import { cookies, headers } from "next/headers";
 import { ApiError } from "./api-error";
 
+/* ---------- helpers ---------- */
+function isErrorResponse(v: unknown): v is { message?: string } {
+  return typeof v === "object" && v !== null;
+}
+/* ----------------------------- */
+
 export async function serverFetch<T>(
   path: string,
   options: RequestInit = {},
@@ -13,48 +19,51 @@ export async function serverFetch<T>(
     });
   }
 
-  // ✅ MUST await in your Next version
-  const cookieStore = await cookies();
-  const reqHeaders = await headers();
+  /* ---------- build absolute URL for SSR ---------- */
+  const h = await headers();
+  const host = h.get("x-forwarded-host") ?? h.get("host");
 
+  const proto = h.get("x-forwarded-proto") ?? "http";
+
+  if (!host) {
+    throw new Error("Cannot resolve request host");
+  }
+
+  const url = base.startsWith("/")
+    ? `${proto}://${host}${base}${path}`
+    : `${base}${path}`;
+  /* ------------------------------------------------ */
+
+  const cookieStore = await cookies();
   const allCookies = cookieStore.getAll();
 
   const cookieHeader = allCookies.map((c) => `${c.name}=${c.value}`).join("; ");
 
-  const authHeader = reqHeaders.get("authorization");
+  console.log("🟨 serverFetch url:", url);
+  console.log("🟨 serverFetch cookies:", allCookies);
 
-  // 🔍 DEBUG (THIS is what matters)
-  console.log("🟨 serverFetch allCookies:", allCookies);
-  console.log("🟨 serverFetch cookieHeader:", cookieHeader);
-
-  const res = await fetch(`${base}${path}`, {
+  const res = await fetch(url, {
     ...options,
     headers: {
       ...(options.headers ?? {}),
       ...(cookieHeader ? { cookie: cookieHeader } : {}),
-      ...(authHeader ? { authorization: authHeader } : {}),
       "Content-Type": "application/json",
     },
-    cache: "no-store", // credentials is irrelevant for SSR
+    cache: "no-store",
   });
 
   let data: unknown = null;
-
   try {
     data = await res.json();
-  } catch {}
+  } catch {
+    /* ignore empty body */
+  }
 
   if (!res.ok) {
-    let message = "Request failed";
-
-    if (
-      typeof data === "object" &&
-      data !== null &&
-      "message" in data &&
-      typeof (data as { message: unknown }).message === "string"
-    ) {
-      message = (data as { message: string }).message;
-    }
+    const message =
+      isErrorResponse(data) && typeof data.message === "string"
+        ? data.message
+        : "Request failed";
 
     throw new ApiError({
       type: res.status === 401 || res.status === 403 ? "AUTH" : "UNKNOWN",
