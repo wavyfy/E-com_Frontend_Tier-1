@@ -43,13 +43,16 @@ export async function serverFetch<T>(
   } catch {}
 
   if (!res.ok) {
-    const message =
+    let message = "Request failed";
+
+    if (
       typeof data === "object" &&
       data !== null &&
       "message" in data &&
       typeof (data as { message: unknown }).message === "string"
-        ? (data as { message: string }).message
-        : "Request failed";
+    ) {
+      message = (data as { message: string }).message;
+    }
 
     throw new ApiError({
       type: res.status === 401 || res.status === 403 ? "AUTH" : "UNKNOWN",
@@ -59,5 +62,5 @@ export async function serverFetch<T>(
     });
   }
 
-  return (res.status === 204 ? null : await res.json()) as T;
+  return data as T;
 }
