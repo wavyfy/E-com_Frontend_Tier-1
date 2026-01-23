@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://e-com-backend-tier-1.onrender.com/api/v1/:path*"
+    }
+  ]
+}
