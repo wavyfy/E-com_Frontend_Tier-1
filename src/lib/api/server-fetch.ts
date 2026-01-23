@@ -1,18 +1,6 @@
-import { cookies } from "next/headers";
-import { ApiError, } from "./api-error";
-import type { ApiErrorType } from "../types/error";
-
-function classifyStatus(status: number): ApiErrorType {
-  if (status === 401 || status === 403) return "AUTH";
-  if (status === 404) return "NOT_FOUND";
-  if (status === 429) return "RATE_LIMIT";
-  if (status >= 500) return "SERVER";
-  return "UNKNOWN";
-}
-
-function isObject(v: unknown): v is Record<string, unknown> {
-  return typeof v === "object" && v !== null;
-}
+import { cookies, headers } from "next/headers";
+import { ApiError } from "./api-error";
+// import type { ApiErrorType } from "../types/error";
 
 export async function serverFetch<T>(
   path: string,
@@ -26,68 +14,50 @@ export async function serverFetch<T>(
     });
   }
 
-  /* ✅ cookies() IS async in your environment */
-  const cookieStore = await cookies();
+  const cookieStore = await cookies(); // Promise in your setup
+  const reqHeaders = await headers(); // Promise in your setup
 
   const cookieHeader = cookieStore
     .getAll()
     .map((c) => `${c.name}=${c.value}`)
     .join("; ");
 
-  let res: Response;
+  const authHeader = reqHeaders.get("authorization");
 
-  try {
-    res = await fetch(`${base}${path}`, {
-      ...options,
-      headers: {
-        ...(options.headers ?? {}),
-        ...(cookieHeader ? { cookie: cookieHeader } : {}),
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      cache: "no-store",
-    });
-  } catch {
-    throw new ApiError({
-      type: "NETWORK",
-      message: "Unable to reach API server",
-    });
-  }
-
-  if (res.status === 204) {
-    return null as T;
-  }
+  const res = await fetch(`${base}${path}`, {
+    ...options,
+    headers: {
+      ...(options.headers ?? {}),
+      ...(cookieHeader ? { cookie: cookieHeader } : {}),
+      ...(authHeader ? { authorization: authHeader } : {}),
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+    cache: "no-store",
+  });
 
   let data: unknown = null;
+
   try {
     data = await res.json();
   } catch {}
 
   if (!res.ok) {
     const message =
-      isObject(data) && typeof data.message === "string"
-        ? data.message
+      typeof data === "object" &&
+      data !== null &&
+      "message" in data &&
+      typeof (data as { message: unknown }).message === "string"
+        ? (data as { message: string }).message
         : "Request failed";
 
-    const code =
-      isObject(data) && typeof data.code === "string" ? data.code : undefined;
-
-    const requestId =
-      isObject(data) && typeof data.requestId === "string"
-        ? data.requestId
-        : undefined;
-
-    const details = isObject(data) ? data.details : undefined;
-
     throw new ApiError({
-      type: classifyStatus(res.status),
+      type: res.status === 401 || res.status === 403 ? "AUTH" : "UNKNOWN",
       status: res.status,
       message,
-      code,
-      requestId,
-      details,
+      details: data,
     });
   }
 
-  return data as T;
+  return (res.status === 204 ? null : await res.json()) as T;
 }
