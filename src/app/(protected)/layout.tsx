@@ -1,27 +1,17 @@
-"use client";
+// app/(protected)/layout.tsx
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
-import { ReactNode, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
+export default async function ProtectedLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const cookieStore = await cookies(); 
+  const accessToken = cookieStore.get("accessToken");
 
-export default function ProtectedLayout({ children }: { children: ReactNode }) {
-  const { isAuthenticated, isLoading } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (isLoading) return;
-
-    if (!isAuthenticated) {
-      router.replace("/login");
-    }
-  }, [isLoading, isAuthenticated, router]);
-
-  if (isLoading) {
-    return <p>Loading session...</p>;
-  }
-
-  if (!isAuthenticated) {
-    return null;
+  if (!accessToken) {
+    redirect("/login");
   }
 
   return <>{children}</>;
