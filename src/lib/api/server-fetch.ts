@@ -61,6 +61,8 @@ export async function serverFetch<T>(
       details: data,
     });
   }
+  console.log("🟨 serverFetch cookies:", cookies);
+  console.log("🟨 serverFetch cookie header:", cookieHeader);
 
   return data as T;
 }
