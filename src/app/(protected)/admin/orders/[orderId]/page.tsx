@@ -4,7 +4,7 @@ import { ApiError } from "@/lib/api/api-error";
 import {
   fetchAdminOrderById,
   updateAdminOrderStatus,
-} from "@/lib/api/order.server";
+} from "@/lib/api/server/order.server";
 
 import type { AdminOrderDetail } from "@/lib/types/order";
 

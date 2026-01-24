@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { OrderAPI } from "@/lib/api/order.api";
-import { api } from "@/lib/api/client";
+import { OrderAPI } from "@/lib/api/client/order.api";
+import { api } from "@/lib/api/client/client";
 import type { Order } from "@/lib/types/order";
 import { ApiError } from "@/lib/api/api-error";
 import { OrderPaymentTimer } from "@/components/orders/OrderPaymentTimer";
@@ -34,6 +34,12 @@ export default function OrderPayPage() {
   const isPending = status === "PAYMENT_PENDING";
   const retryExhausted = isCreated && attemptsUsed >= MAX_RETRIES;
   const paymentLocked = paying || isPending;
+
+  const lockedMessage = isPending
+    ? "Payment is already open in another tab. Please complete it there."
+    : retryExhausted
+      ? "Retry limit reached. Redirecting to cart."
+      : null;
 
   /* ---------- initial fetch ---------- */
   useEffect(() => {
@@ -148,6 +154,7 @@ export default function OrderPayPage() {
         order_id: payment.razorpayOrderId,
         handler: () => {
           router.replace(`/orders/${order._id}?justPaid=1`);
+          router.refresh();
         },
         modal: {
           ondismiss: async () => {
@@ -156,6 +163,12 @@ export default function OrderPayPage() {
               const latest = await OrderAPI.getById(order._id);
               setOrder(latest);
               setMessage("Payment window closed. You can retry.");
+              if (
+                latest.status === "CREATED" &&
+                latest.paymentAttempts >= MAX_RETRIES
+              ) {
+                router.replace("/cart");
+              }
             } catch {
               setMessage("Payment window closed. Refreshing status…");
             }
@@ -228,7 +241,9 @@ export default function OrderPayPage() {
 
       {isCreated && !retryExhausted && (
         <>
-          {message && <p className="text-red-600">{message}</p>}
+          {(message || lockedMessage) && (
+            <p className="text-red-600">{lockedMessage ?? message}</p>
+          )}
           <p className="text-gray-600">
             {attemptsLeft} attempt{attemptsLeft !== 1 ? "s" : ""} remaining
           </p>

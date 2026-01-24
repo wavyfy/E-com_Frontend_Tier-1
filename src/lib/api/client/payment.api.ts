@@ -1,5 +1,5 @@
 import { api } from "./client";
-import type { PaymentInitiateResponse } from "../types/payment";
+import type { PaymentInitiateResponse } from "@/lib/types/payment";
 
 export const PaymentAPI = {
   initiate(orderId: string) {

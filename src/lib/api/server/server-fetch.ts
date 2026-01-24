@@ -1,5 +1,5 @@
 import { cookies, headers } from "next/headers";
-import { ApiError } from "./api-error";
+import { ApiError } from "@/lib/api/api-error";
 
 /* ---------- helpers ---------- */
 function isErrorResponse(v: unknown): v is { message?: string } {
@@ -38,9 +38,6 @@ export async function serverFetch<T>(
   const allCookies = cookieStore.getAll();
 
   const cookieHeader = allCookies.map((c) => `${c.name}=${c.value}`).join("; ");
-
-  console.log("🟨 serverFetch url:", url);
-  console.log("🟨 serverFetch cookies:", allCookies);
 
   const res = await fetch(url, {
     ...options,

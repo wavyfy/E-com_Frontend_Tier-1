@@ -1,6 +1,6 @@
 "use client";
 
-import { ProductAPI } from "@/lib/api/product.api";
+import { ProductAPI } from "@/lib/api/client/product.api";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 

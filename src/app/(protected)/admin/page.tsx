@@ -1,4 +1,4 @@
-import { fetchAdminDashboard } from "@/lib/api/admin-dashboard.server";
+import { fetchAdminDashboard } from "@/lib/api/server/admin-dashboard.server";
 
 export default async function AdminDashboardPage() {
   const data = await fetchAdminDashboard();

@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { Cart } from "@/lib/types/cart";
-import { CartAPI } from "@/lib/api/cart.api";
+import { CartAPI } from "@/lib/api/client/cart.api";
 import { useAuth } from "@/context/AuthContext";
 import { ApiError } from "@/lib/api/api-error";
 import type { CartContextValue } from "@/lib/types/cart";

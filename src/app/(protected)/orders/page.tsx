@@ -1,5 +1,5 @@
 // app/(protected)/orders/page.tsx
-import { fetchOrders } from "@/lib/api/order.server";
+import { fetchOrders } from "@/lib/api/server/order.server";
 import Link from "next/link";
 
 export default async function OrdersPage({

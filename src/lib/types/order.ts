@@ -1,11 +1,3 @@
-// export type Order = {
-//   _id: string;
-//   itemsCount: number;
-//   totalAmount: number;
-//   status: "PENDING" | "PAID" | "CANCELLED";
-//   currency: string;
-// };
-
 export type OrderStatus =
   | "CREATED"
   | "PAYMENT_PENDING"
@@ -65,16 +57,6 @@ export type Order = {
   paymentInitiatedAt?: string;
   updatedAt: string;
 };
-
-// export type AdminOrderListItem = {
-//   id: string;
-//   userId: string;
-//   totalAmount: number;
-//   currency: string;
-//   status: OrderStatus;
-//   paymentAttempts: number;
-//   createdAt: string;
-// };
 
 export type AdminOrderListResponse = {
   page: number;

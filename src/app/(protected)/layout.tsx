@@ -10,8 +10,6 @@ export default async function ProtectedLayout({
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken");
 
-  console.log("🟦 layout cookies:", cookieStore.getAll());
-
   if (!accessToken) {
     redirect("/login");
   }

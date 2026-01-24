@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { OrderAPI } from "@/lib/api/order.api";
+import { OrderAPI } from "@/lib/api/client/order.api";
 import type { Order } from "@/lib/types/order";
 import { useCart } from "@/context/CartContext";
 

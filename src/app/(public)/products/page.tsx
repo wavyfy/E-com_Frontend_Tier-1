@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { fetchProducts } from "@/lib/api/product.server";
+import { fetchProducts } from "@/lib/api/server/product.server";
 import { ApiError } from "@/lib/api/api-error";
 import { notFound } from "next/navigation";
 import AddToCartButton from "@/components/cart/AddToCartButton";

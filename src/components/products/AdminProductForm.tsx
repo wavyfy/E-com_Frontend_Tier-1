@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ProductAPI } from "@/lib/api/product.api";
+import { ProductAPI } from "@/lib/api/client/product.api";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import type { Props } from "@/lib/types/product";

@@ -1,4 +1,3 @@
-// src/lib/utils/pincode.ts
 export type PincodeResult = {
   city: string;
   state: string;

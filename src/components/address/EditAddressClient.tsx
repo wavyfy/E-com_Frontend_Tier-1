@@ -1,8 +1,7 @@
-// app/(protected)/account/addresses/[addressId]/edit/EditAddressClient.tsx
 "use client";
 
 import { useRouter } from "next/navigation";
-import { AddressAPI } from "@/lib/api/address.api";
+import { AddressAPI } from "@/lib/api/client/address.api";
 import AddressForm from "@/components/address/AddressForm";
 import type { Address } from "@/lib/types/address";
 

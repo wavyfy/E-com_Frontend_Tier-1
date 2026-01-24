@@ -1,5 +1,5 @@
 import { serverFetch } from "./server-fetch";
-import type { PaginatedPayments, AdminPaymentDetail } from "../types/payment";
+import type { PaginatedPayments, AdminPaymentDetail } from "@/lib/types/payment";
 
 export async function fetchAdminPayments(
   page = 1,

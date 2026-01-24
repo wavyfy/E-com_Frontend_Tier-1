@@ -4,7 +4,7 @@ import type {
   OrderStatus,
   AdminOrderListResponse,
   AdminOrderDetail,
-} from "../types/order";
+} from "@/lib/types/order";
 
 /* ================= USER (SERVER) ================= */
 

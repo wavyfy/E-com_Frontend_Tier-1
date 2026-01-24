@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { AddressAPI } from "@/lib/api/address.api";
-import { OrderAPI } from "@/lib/api/order.api";
+import { AddressAPI } from "@/lib/api/client/address.api";
+import { OrderAPI } from "@/lib/api/client/order.api";
 import AddressForm from "@/components/address/AddressForm";
 import type { AddressInput } from "@/lib/types/address";
 import { ApiError } from "@/lib/api/api-error";

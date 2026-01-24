@@ -1,5 +1,5 @@
 // app/(protected)/account/addresses/[addressId]/edit/page.tsx
-import { fetchAddressById } from "@/lib/api/address.server";
+import { fetchAddressById } from "@/lib/api/server/address.server";
 import { notFound } from "next/navigation";
 import { ApiError } from "@/lib/api/api-error";
 import EditAddressClient from "@/components/address/EditAddressClient";

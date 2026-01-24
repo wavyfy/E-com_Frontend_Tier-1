@@ -10,15 +10,6 @@ export interface Product {
   updatedAt: string;
 }
 
-// export type Product = {
-//   _id: string;
-//   name: string;
-//   slug: string;
-//   price: number;
-//   description?: string;
-//   stock: number;
-// };
-
 export type ProductListResponse = {
   page: number;
   limit: number;

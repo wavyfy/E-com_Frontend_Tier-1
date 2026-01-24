@@ -1,5 +1,5 @@
 // app/orders/[orderId]/address/page.tsx
-import { fetchAddresses } from "@/lib/api/address.server";
+import { fetchAddresses } from "@/lib/api/server/address.server";
 import { redirect } from "next/navigation";
 import OrderAddressSelect from "@/components/address/AddressSelect";
 import AddressLimitNotice from "@/components/address/AddressLimitNotice";

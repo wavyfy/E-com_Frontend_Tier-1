@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 import { ApiError } from "@/lib/api/api-error";
-import { fetchAdminUserById } from "@/lib/api/user.server";
-import { fetchAdminOrders } from "@/lib/api/order.server";
-import { fetchAdminPayments } from "@/lib/api/payment.server";
+import { fetchAdminUserById } from "@/lib/api/server/user.server";
+import { fetchAdminOrders } from "@/lib/api/server/order.server";
+import { fetchAdminPayments } from "@/lib/api/server/payment.server";
 
 export default async function AdminUserDetailPage({
   params,

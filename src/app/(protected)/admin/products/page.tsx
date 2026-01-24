@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { fetchAdminProducts } from "@/lib/api/product.server";
+import { fetchAdminProducts } from "@/lib/api/server/product.server";
 import { ApiError } from "@/lib/api/api-error";
 import { notFound } from "next/navigation";
 import { AdminCreateButton } from "@/components/products/AdminCreateButton";

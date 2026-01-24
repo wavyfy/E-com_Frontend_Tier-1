@@ -1,5 +1,5 @@
 // app/account/addresses/page.tsx
-import { fetchAddresses } from "@/lib/api/address.server";
+import { fetchAddresses } from "@/lib/api/server/address.server";
 import Link from "next/link";
 import SetDefaultButton from "@/components/address/SetDefaultButton";
 import DeleteAddressButton from "@/components/address/DeleteAddressButton";

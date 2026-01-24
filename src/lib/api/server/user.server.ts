@@ -1,5 +1,5 @@
 import { serverFetch } from "./server-fetch";
-import type { PaginatedUsers, AdminUser } from "../types/user";
+import type { PaginatedUsers, AdminUser } from "@/lib/types/user";
 
 /* ================= ADMIN (SERVER ONLY) ================= */
 

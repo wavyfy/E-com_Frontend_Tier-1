@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ApiError } from "@/lib/api/api-error";
 import type { Product } from "@/lib/types/product";
-import { fetchAdminProductById } from "@/lib/api/product.server";
+import { fetchAdminProductById } from "@/lib/api/server/product.server";
 import { AdminProductActions } from "@/components/products/AdminProductActions";
 
 export default async function AdminProductDetailPage({

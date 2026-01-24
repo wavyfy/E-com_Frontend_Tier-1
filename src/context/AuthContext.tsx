@@ -8,8 +8,8 @@ import {
   useState,
   ReactNode,
 } from "react";
-import { AuthAPI } from "@/lib/api/auth.api";
-import { setAccessToken as setClientAccessToken } from "@/lib/api/client";
+import { AuthAPI } from "@/lib/api/client/auth.api";
+import { setAccessToken as setClientAccessToken } from "@/lib/api/client/client";
 import { ApiError } from "@/lib/api/api-error";
 import type { Role, AuthContextType } from "@/lib/types/auth";
 

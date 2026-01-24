@@ -1,6 +1,6 @@
 // src/lib/api/address.server.ts
 import { serverFetch } from "./server-fetch";
-import type { Address } from "../types/address";
+import type { Address } from "@/lib/types/address";
 
 /* ================= LIST ================= */
 

@@ -1,6 +1,6 @@
 // src/lib/api/product.server.ts
 import { serverFetch } from "./server-fetch";
-import type { Product, ProductListResponse } from "../types/product";
+import type { Product, ProductListResponse } from "@/lib/types/product";
 
 /* ================= USER ================= */
 

@@ -1,4 +1,4 @@
-import type { ApiErrorType } from "../types/error";
+import type { ApiErrorType } from "@/lib/types/error";
 
 export class ApiError extends Error {
   readonly type: ApiErrorType;

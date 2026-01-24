@@ -1,5 +1,5 @@
 // app/(protected)/orders/[orderId]/page.tsx
-import { fetchOrderById } from "@/lib/api/order.server";
+import { fetchOrderById } from "@/lib/api/server/order.server";
 import { notFound } from "next/navigation";
 import OrderDetailsClient from "@/components/orders/OrderDetailsClient";
 import { ApiError } from "@/lib/api/api-error";

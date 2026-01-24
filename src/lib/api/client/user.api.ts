@@ -1,5 +1,5 @@
 import { api } from "./client";
-import type { User } from "../types/user";
+import type { User } from "@/lib/types/user";
 
 export const UserAPI = {
   me(accessToken: string) {

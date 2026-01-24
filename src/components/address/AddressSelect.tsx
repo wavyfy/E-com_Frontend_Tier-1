@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { OrderAPI } from "@/lib/api/order.api";
+import { OrderAPI } from "@/lib/api/client/order.api";
 import type { Address } from "@/lib/types/address";
 import type { Order } from "@/lib/types/order";
 import OrderSummary from "@/components/orders/OrderSummary";

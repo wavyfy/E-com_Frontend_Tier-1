@@ -1,5 +1,5 @@
 import { api } from "./client";
-import type { Order } from "../types/order";
+import type { Order } from "@/lib/types/order";
 
 export const OrderAPI = {
   /* ================= USER ================= */
@@ -19,7 +19,7 @@ export const OrderAPI = {
       body: JSON.stringify({ addressId }),
     });
   },
-  
+
   // 3️⃣ Fetch order (pay page polling etc.)
   getById(orderId: string): Promise<Order> {
     return api<Order>(`/orders/${orderId}`);

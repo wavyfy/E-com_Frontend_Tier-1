@@ -1,6 +1,6 @@
 // src/lib/api/address.api.ts
 import { api } from "./client";
-import type { Address } from "../types/address";
+import type { Address } from "@/lib/types/address";
 
 export const AddressAPI = {
   /* ===== USER ===== */

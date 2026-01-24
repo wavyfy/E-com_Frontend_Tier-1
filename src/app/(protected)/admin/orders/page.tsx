@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ApiError } from "@/lib/api/api-error";
-import { fetchAdminOrders } from "@/lib/api/order.server";
+import { fetchAdminOrders } from "@/lib/api/server/order.server";
 import { Pagination } from "@/components/common/Pagination";
 
 import type { AdminOrderListItem } from "@/lib/types/order";

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ApiError } from "@/lib/api/api-error";
-import { fetchAdminUsers } from "@/lib/api/user.server";
+import { fetchAdminUsers } from "@/lib/api/server/user.server";
 import { Pagination } from "@/components/common/Pagination";
 
 export default async function AdminUsersPage({

@@ -2,7 +2,7 @@
 
 import { useCart } from "@/context/CartContext";
 import CartItem from "@/components/cart/CartItem";
-import { OrderAPI } from "@/lib/api/order.api";
+import { OrderAPI } from "@/lib/api/client/order.api";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ApiError } from "@/lib/api/api-error";
