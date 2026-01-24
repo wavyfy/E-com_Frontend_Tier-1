@@ -26,7 +26,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       const data = await CartAPI.get();
       setCart(data);
     } catch (err) {
-      // ✅ Expected during PAYMENT_PENDING
       if (err instanceof ApiError && err.status === 409) {
         return;
       }
@@ -35,6 +34,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       setLoading(false);
       isRefreshing.current = false;
     }
+  };
+
+  const clear = () => {
+    setCart(null);
   };
 
   const addItem = async (productId: string, qty = 1) => {
@@ -64,6 +67,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         updateItem,
         removeItem,
         refresh,
+        clear,
       }}
     >
       {children}

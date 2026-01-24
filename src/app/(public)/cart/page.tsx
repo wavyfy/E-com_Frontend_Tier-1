@@ -34,9 +34,9 @@ export default function CartPage() {
       const order = await OrderAPI.checkout();
 
       if (order.shippingAddressSnapshot) {
-        router.push(`/orders/${order._id}/pay`);
+        router.push(`/account/orders/${order._id}/pay`);
       } else {
-        router.push(`/orders/${order._id}/address`);
+        router.push(`/account/orders/${order._id}/address`);
       }
     } catch (err) {
       if (err instanceof ApiError && err.type === "AUTH") {

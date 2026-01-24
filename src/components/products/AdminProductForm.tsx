@@ -37,19 +37,37 @@ export function AdminProductForm({ product }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>{product ? "Edit Product" : "Create Product"}</h2>
+    <form onSubmit={handleSubmit} className="max-w-md mx-auto p-6 space-y-4">
+      <h2 className="text-xl font-semibold">
+        {product ? "Edit Product" : "Create Product"}
+      </h2>
 
-      <input value={name} onChange={(e) => setName(e.target.value)} required />
+      <div className="space-y-3">
+        <input
+          placeholder="Product name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+          className="w-full border rounded p-2"
+        />
 
-      <input
-        type="number"
-        value={price}
-        onChange={(e) => setPrice(Number(e.target.value))}
-        required
-      />
+        <input
+          type="number"
+          placeholder="Price"
+          value={price}
+          onChange={(e) => setPrice(Number(e.target.value))}
+          required
+          className="w-full border rounded p-2"
+        />
+      </div>
 
-      <button disabled={saving}>{saving ? "Saving…" : "Save"}</button>
+      <button
+        type="submit"
+        disabled={saving}
+        className="w-full border rounded p-2 font-medium hover:bg-gray-50 disabled:opacity-50"
+      >
+        {saving ? "Saving…" : "Save"}
+      </button>
     </form>
   );
 }

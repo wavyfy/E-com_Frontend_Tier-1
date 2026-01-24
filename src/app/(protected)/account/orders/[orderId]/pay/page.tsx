@@ -7,6 +7,7 @@ import { api } from "@/lib/api/client/client";
 import type { Order } from "@/lib/types/order";
 import { ApiError } from "@/lib/api/api-error";
 import { OrderPaymentTimer } from "@/components/orders/OrderPaymentTimer";
+import { useCart } from "@/context/CartContext";
 
 export default function OrderPayPage() {
   const { orderId } = useParams<{ orderId: string }>();
@@ -34,6 +35,7 @@ export default function OrderPayPage() {
   const isPending = status === "PAYMENT_PENDING";
   const retryExhausted = isCreated && attemptsUsed >= MAX_RETRIES;
   const paymentLocked = paying || isPending;
+  const { clear } = useCart();
 
   const lockedMessage = isPending
     ? "Payment is already open in another tab. Please complete it there."
@@ -66,7 +68,7 @@ export default function OrderPayPage() {
       // re-fetch once before redirecting
       OrderAPI.getById(order._id).then((latest) => {
         if (!latest.shippingAddressSnapshot) {
-          router.replace(`/orders/${order._id}/address`);
+          router.replace(`/account/orders/${order._id}/address`);
         } else {
           setOrder(latest); // 🔑 snapshot now available → render
         }
@@ -153,8 +155,9 @@ export default function OrderPayPage() {
         currency: payment.currency,
         order_id: payment.razorpayOrderId,
         handler: () => {
-          router.replace(`/orders/${order._id}?justPaid=1`);
+          router.replace(`/account/orders/${order._id}?justPaid=1`);
           router.refresh();
+          clear();
         },
         modal: {
           ondismiss: async () => {
@@ -180,7 +183,7 @@ export default function OrderPayPage() {
     } catch (err) {
       if (err instanceof ApiError) {
         if (err.code === "ADDRESS_REQUIRED") {
-          router.replace(`/orders/${order._id}/address`);
+          router.replace(`/account/orders/${order._id}/address`);
           return;
         }
 
@@ -218,7 +221,7 @@ export default function OrderPayPage() {
           <div className="flex items-center justify-between">
             <h2 className="font-medium">Delivery Address</h2>
             <button
-              onClick={() => router.push(`/orders/${order._id}/address`)}
+              onClick={() => router.push(`/account/orders/${order._id}/address`)}
               className="text-sm text-blue-600 underline"
             >
               Change

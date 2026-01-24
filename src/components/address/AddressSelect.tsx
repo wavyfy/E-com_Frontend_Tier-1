@@ -59,7 +59,7 @@ export default function OrderAddressSelect({
     setSubmitting(true);
     await OrderAPI.attachAddress(orderId, selected);
 
-    router.replace(`/orders/${orderId}/pay?addressConfirmed=1`);
+    router.replace(`/account/orders/${orderId}/pay?addressConfirmed=1`);
   }
 
   return (

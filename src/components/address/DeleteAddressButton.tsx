@@ -25,7 +25,7 @@ export default function DeleteAddressButton({ address }: { address: Address }) {
       onClick={handleDelete}
       className="text-sm font-medium text-red-600 hover:underline"
     >
-      Delete
+      Delete 
     </button>
   );
 }

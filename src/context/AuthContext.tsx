@@ -1,4 +1,3 @@
-// src/context/AuthContext.tsx
 "use client";
 
 import {
@@ -31,22 +30,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const isAuthenticated = !!accessToken;
 
+  function clearAuthState() {
+    setAccessToken(null);
+    setRole(null);
+    setClientAccessToken(null);
+  }
+
   function handleAuthError(err: unknown): never {
     if (
       err instanceof ApiError &&
       typeof err.code === "string" &&
-      ["AUTH_REQUIRED", "AUTH_INVALID_TOKEN", "AUTH_TOKEN_EXPIRED"].includes(
-        err.code,
-      )
+      [
+        "AUTH_REQUIRED",
+        "AUTH_INVALID_TOKEN",
+        "AUTH_TOKEN_EXPIRED",
+        "ACCOUNT_DELETED",
+      ].includes(err.code)
     ) {
-      setAccessToken(null);
-      setRole(null);
-      setClientAccessToken(null);
+      clearAuthState();
     }
     throw err;
   }
 
-  //  Restore session (AUTH ONLY)
+  // Restore session (AUTH ONLY)
   useEffect(() => {
     let cancelled = false;
 
@@ -60,9 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setClientAccessToken(accessToken);
       } catch {
         if (cancelled) return;
-        setAccessToken(null);
-        setRole(null);
-        setClientAccessToken(null);
+        clearAuthState();
       } finally {
         if (!cancelled) setIsLoading(false);
       }
@@ -100,11 +104,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await AuthAPI.logout();
     } finally {
-      setAccessToken(null);
-      setRole(null);
-      setClientAccessToken(null);
+      clearAuthState();
       window.location.href = "/login";
     }
+  }
+
+  /**
+   * 🔑 Local-only auth invalidation
+   * Used after account deletion
+   * No API call, no assumptions
+   */
+  function invalidate() {
+    clearAuthState();
   }
 
   return (
@@ -117,6 +128,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         register,
         logout,
+        invalidate, 
       }}
     >
       {children}

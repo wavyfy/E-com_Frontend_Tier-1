@@ -22,8 +22,8 @@ export default function NewAddressClient({
       const address = await AddressAPI.create(data);
 
       // 2️⃣ If coming from checkout, attach address to order
-      if (returnTo?.includes("/orders/")) {
-        const match = returnTo.match(/\/orders\/([^/]+)\/pay/);
+      if (returnTo?.includes("/account/orders/")) {
+        const match = returnTo.match(/\/account\/orders\/([^/]+)\/pay/);
         const orderId = match?.[1];
 
         if (orderId) {

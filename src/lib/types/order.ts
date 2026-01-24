@@ -3,6 +3,7 @@ export type OrderStatus =
   | "PAYMENT_PENDING"
   | "PAID"
   | "FULFILLED"
+  | "DELIVERED"
   | "CANCELLED";
 
 export type OrderStatusHistory = {

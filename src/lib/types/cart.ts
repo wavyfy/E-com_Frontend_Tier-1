@@ -41,4 +41,5 @@ export type CartContextValue = {
   updateItem: (productId: string, qty: number) => Promise<void>;
   removeItem: (productId: string) => Promise<void>;
   refresh: () => Promise<void>;
+  clear: () => void; 
 };
