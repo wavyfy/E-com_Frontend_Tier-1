@@ -7,7 +7,7 @@ function getDisplayStatus(status: string) {
     case "CREATED":
       return "Order placed";
     case "PAID":
-      return "Paid";
+      return "Order placed";
     case "SHIPPED":
       return "Shipped";
     case "DELIVERED":

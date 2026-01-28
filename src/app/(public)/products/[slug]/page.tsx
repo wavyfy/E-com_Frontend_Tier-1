@@ -4,6 +4,10 @@ import { ApiError } from "@/lib/api/api-error";
 import { notFound } from "next/navigation";
 import AddToCartButton from "@/components/cart/AddToCartButton";
 import type { Product } from "@/lib/types/product";
+import { fetchProductReviews } from "@/lib/api/server/review.server";
+import ReviewSection from "@/components/reviews/ReviewSection";
+import { fetchProductQuestions } from "@/lib/api/server/question.server";
+import QuestionSection from "@/components/questions/QuestionSection";
 
 export default async function ProductDetailPage({
   params,
@@ -15,7 +19,6 @@ export default async function ProductDetailPage({
   if (!slug) notFound();
 
   let product: Product;
-
   try {
     product = await fetchProductBySlug(slug);
   } catch (err) {
@@ -25,16 +28,16 @@ export default async function ProductDetailPage({
     throw err;
   }
 
+  const reviews = await fetchProductReviews(product._id);
+  const questions = await fetchProductQuestions(product._id);
+
   return (
     <main style={{ maxWidth: 1000, margin: "0 auto", padding: "24px" }}>
-      {/* Back link */}
       <div style={{ marginBottom: 24 }}>
         <Link href="/products">← Back to products</Link>
       </div>
 
-      {/* Product layout */}
       <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-        {/* Product Info */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <h1>{product.name}</h1>
           <p style={{ fontSize: 18 }}>₹{product.price}</p>
@@ -46,11 +49,13 @@ export default async function ProductDetailPage({
           <p>Stock: {product.stock}</p>
         </div>
 
-        {/* User Actions */}
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
           <AddToCartButton productId={product._id} />
         </div>
       </div>
+
+      <ReviewSection productId={product._id} initialData={reviews} />
+      <QuestionSection productId={product._id} initialData={questions} />
     </main>
   );
 }

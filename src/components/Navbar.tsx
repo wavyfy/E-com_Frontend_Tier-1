@@ -24,8 +24,7 @@ export default function Navbar() {
       <Link href="/cart">Cart{itemsCount > 0 ? ` (${itemsCount})` : ""}</Link>
 
       {/* Spacer */}
-      <div style={{ marginLeft: "auto", display: "flex", gap: 12 }}>
-        {/* Admin links (right aligned) */}
+      <div style={{ marginLeft: "auto", display: "flex", gap: 12, alignItems: "center" }}>
         {isAdmin && <Link href="/admin">Admin Dashboard</Link>}
 
         {!isAuthenticated && <Link href="/register">Register</Link>}

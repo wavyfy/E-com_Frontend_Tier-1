@@ -37,6 +37,8 @@ export default function AdminLayout({
           <Link href="/admin/payments">Payments</Link>
           <Link href="/admin/users">Users</Link>
           <Link href="/admin/products">Products</Link>
+          <Link href="/admin/reviews">Reviews</Link>
+          <Link href="/admin/questions">Questions</Link>
         </nav>
       </aside>
 
