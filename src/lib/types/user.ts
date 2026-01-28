@@ -15,13 +15,21 @@ export type User = {
   id: string;
   email: string;
 
-  // profile (optional)
   fullName?: string;
   phone?: string;
   avatar?: string;
   gender?: "male" | "female" | "other";
-  dob?: string; 
+  dob?: string;
 
   createdAt: string;
   updatedAt: string;
+};
+
+export type Gender = "male" | "female" | "other";
+
+export type ProfileFormState = {
+  fullName: string;
+  phone: string;
+  gender?: Gender;
+  dob: string;
 };

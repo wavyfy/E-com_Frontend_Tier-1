@@ -1,9 +1,7 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ApiError } from "@/lib/api/api-error";
 import { fetchAdminOrders } from "@/lib/api/server/order.server";
-import { Pagination } from "@/components/common/Pagination";
-
+import AdminOrdersTable from "@/components/admin/orders/AdminOrdersTable";
 import type { AdminOrderListItem } from "@/lib/types/order";
 
 export default async function AdminOrdersPage({
@@ -15,6 +13,7 @@ export default async function AdminOrdersPage({
 
   const currentPage = Math.max(Number(page) || 1, 1);
   const limit = 10;
+
   let items: AdminOrderListItem[] = [];
   let hasNextPage = false;
 
@@ -30,61 +29,10 @@ export default async function AdminOrdersPage({
   }
 
   return (
-    <main style={{ maxWidth: 1200, margin: "0 auto", padding: "24px" }}>
-      {/* Header */}
-      <div style={{ marginBottom: 24 }}>
-        <h1>All Orders</h1>
-      </div>
-
-      {/* Orders Table */}
-      <table
-        style={{
-          width: "100%",
-          borderCollapse: "collapse",
-        }}
-      >
-        <thead>
-          <tr>
-            <th align="left">Order ID</th>
-            <th align="left">User</th>
-            <th align="left">Amount</th>
-            <th align="left">Status</th>
-            <th align="left">Attempts</th>
-            <th align="left">Date</th>
-            <th align="left">Action</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {items.map((order) => (
-            <tr
-              key={order.id || `${order.userId}-${order.createdAt}`}
-              style={{ borderTop: "1px solid #ddd" }}
-            >
-              <td style={{ padding: "8px 0", fontFamily: "monospace" }}>
-                {order.id}
-              </td>
-              <td style={{ fontFamily: "monospace" }}>{order.userId}</td>
-              <td>
-                {order.currency} {order.totalAmount}
-              </td>
-              <td>{order.status}</td>
-              <td>{order.paymentAttempts}</td>
-              <td>{new Date(order.createdAt).toLocaleDateString()}</td>
-              <td>
-                <Link href={`/admin/orders/${order.id}`}>View</Link>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {/* Pagination (IDENTICAL TO PRODUCTS PAGE) */}
-      <Pagination
-        currentPage={currentPage}
-        basePath="/admin/orders"
-        hasNextPage={hasNextPage}
-      />
-    </main>
+    <AdminOrdersTable
+      orders={items}
+      currentPage={currentPage}
+      hasNextPage={hasNextPage}
+    />
   );
 }

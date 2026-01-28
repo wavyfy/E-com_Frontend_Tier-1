@@ -1,8 +1,7 @@
-// app/(protected)/orders/[orderId]/page.tsx
 import { fetchOrderById } from "@/lib/api/server/order.server";
 import { notFound } from "next/navigation";
-import OrderDetailsClient from "@/components/orders/OrderDetailsClient";
 import { ApiError } from "@/lib/api/api-error";
+import OrderDetails from "@/components/user/orders/OrderDetails";
 
 export default async function OrderDetailsPage({
   params,
@@ -21,5 +20,5 @@ export default async function OrderDetailsPage({
     throw err;
   }
 
-  return <OrderDetailsClient initialOrder={order} />;
+  return <OrderDetails initialOrder={order} />;
 }

@@ -1,41 +1,35 @@
 "use client";
-import type { ConfirmModalProps } from "@/lib/types/common";
+
+interface ConfirmModalProps {
+  open: boolean;
+  title: string;
+  description?: string;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+}
 
 export default function ConfirmModal({
   open,
   title,
-  message,
-  confirmText = "Confirm",
-  cancelText = "Cancel",
-  loading = false,
+  description,
+  confirmLabel = "Confirm",
+  cancelLabel = "Cancel",
   onConfirm,
   onCancel,
 }: ConfirmModalProps) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white rounded-lg p-5 w-full max-w-sm space-y-4">
-        <h3 className="text-lg font-medium">{title}</h3>
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
+      <div className="bg-white p-4 rounded space-y-3">
+        <h3 className="font-medium">{title}</h3>
+        {description && <p className="text-sm">{description}</p>}
 
-        <p className="text-sm text-gray-600">{message}</p>
-
-        <div className="flex justify-end gap-3">
-          <button
-            onClick={onCancel}
-            disabled={loading}
-            className="px-4 py-2 text-sm border rounded"
-          >
-            {cancelText}
-          </button>
-
-          <button
-            onClick={onConfirm}
-            disabled={loading}
-            className="px-4 py-2 text-sm bg-black text-white rounded"
-          >
-            {loading ? "Please wait..." : confirmText}
-          </button>
+        <div className="flex gap-3 justify-end">
+          <button onClick={onCancel}>{cancelLabel}</button>
+          <button onClick={onConfirm}>{confirmLabel}</button>
         </div>
       </div>
     </div>

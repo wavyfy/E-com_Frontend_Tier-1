@@ -1,27 +1,38 @@
 "use client";
 
 import { useCart } from "@/context/CartContext";
-import CartItem from "@/components/cart/CartItem";
 import { OrderAPI } from "@/lib/api/client/order.api";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ApiError } from "@/lib/api/api-error";
 
+import CartItemList from "@/components/user/cart/CartItemList";
+import CartSummary from "@/components/user/cart/CartSummary";
+import LoadingState from "@/components/common/LoadingState";
+import EmptyState from "@/components/common/EmptyState";
+import Button from "@/components/ui/Button";
+import Link from "next/link";
+
 export default function CartPage() {
   const { cart, loading, updateItem, removeItem } = useCart();
   const router = useRouter();
-
   const [checkingOut, setCheckingOut] = useState(false);
 
   if (loading) {
-    return <p className="p-4">Loading...</p>;
+    return <LoadingState message="Loading cart..." />;
   }
 
   if (!cart || cart.items.length === 0) {
     return (
-      <div className="max-w-3xl mx-auto p-4">
-        <p>Your cart is empty.</p>
-      </div>
+      <EmptyState
+        title="Your cart is empty"
+        description="Looks like you haven’t added anything yet."
+        action={
+          <Link href="/products">
+            <Button>Browse products</Button>
+          </Link>
+        }
+      />
     );
   }
 
@@ -30,7 +41,6 @@ export default function CartPage() {
 
     try {
       setCheckingOut(true);
-
       const order = await OrderAPI.checkout();
 
       if (order.shippingAddressSnapshot) {
@@ -53,41 +63,25 @@ export default function CartPage() {
     <div className="max-w-3xl mx-auto p-4 space-y-6">
       <h1 className="text-xl font-semibold">Your Cart</h1>
 
-      <div className="space-y-2">
-        {cart.items.map((item) => (
-          <CartItem
-            key={item.productId}
-            item={item}
-            onIncrease={() => updateItem(item.productId, item.quantity + 1)}
-            onDecrease={async () => {
-              if (item.quantity === 1) {
-                await removeItem(item.productId);
-              } else {
-                await updateItem(item.productId, item.quantity - 1);
-              }
-            }}
-            onRemove={() => removeItem(item.productId)}
-          />
-        ))}
-      </div>
+      <CartItemList
+        items={cart.items}
+        onIncrease={(id, qty) => updateItem(id, qty)}
+        onDecrease={async (id, qty) => {
+          if (qty === 1) {
+            await removeItem(id);
+          } else {
+            await updateItem(id, qty - 1);
+          }
+        }}
+        onRemove={(id) => removeItem(id)}
+      />
 
-      <div className="border-t pt-4 flex justify-between items-center">
-        <div>
-          <span className="font-medium">Items: {cart.itemsCount}</span>
-          <br />
-          <span className="font-semibold text-lg">
-            Total: ₹{cart.totalAmount}
-          </span>
-        </div>
-
-        <button
-          onClick={handleCheckout}
-          disabled={checkingOut}
-          className="px-4 py-2 bg-black text-white rounded"
-        >
-          {checkingOut ? "Processing..." : "Proceed to Checkout"}
-        </button>
-      </div>
+      <CartSummary
+        itemsCount={cart.itemsCount}
+        totalAmount={cart.totalAmount}
+        checkingOut={checkingOut}
+        onCheckout={handleCheckout}
+      />
     </div>
   );
 }

@@ -1,5 +1,4 @@
-// app/account/addresses/new/page.tsx
-import NewAddressClient from "@/components/address/NewAddressClient";
+import AddAddress from "@/components/user/address/AddAddress";
 
 export default async function NewAddressPage({
   searchParams,
@@ -7,6 +6,5 @@ export default async function NewAddressPage({
   searchParams: Promise<{ returnTo?: string }>;
 }) {
   const { returnTo } = await searchParams;
-
-  return <NewAddressClient returnTo={returnTo} />;
+  return <AddAddress returnTo={returnTo} />;
 }

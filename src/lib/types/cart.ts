@@ -28,6 +28,7 @@ export type CartItemProps = {
     subtotal: number;
     stock: number;
   };
+  
   onIncrease: () => Promise<void>;
   onDecrease: () => Promise<void>;
   onRemove: () => Promise<void>;

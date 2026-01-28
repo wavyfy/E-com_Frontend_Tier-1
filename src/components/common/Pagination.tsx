@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { PaginationProps } from "@/lib/types/common";
 
-export function Pagination({
+export default function Pagination({
   currentPage,
   basePath,
   hasNextPage = true,

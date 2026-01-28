@@ -1,7 +1,7 @@
 // app/(protected)/profile/page.tsx
 import { fetchMe } from "@/lib/api/server/user.server";
 import { redirect } from "next/navigation";
-import ProfileClient from "@/components/profile/ProfileClient";
+import UserProfile from "@/components/user/profile/UserProfile";
 import { ApiError } from "@/lib/api/api-error";
 
 export default async function ProfilePage() {
@@ -16,5 +16,5 @@ export default async function ProfilePage() {
     throw err;
   }
 
-  return <ProfileClient initialUser={user} />;
+  return <UserProfile initialUser={user} />;
 }

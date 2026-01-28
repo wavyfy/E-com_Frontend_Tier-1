@@ -1,8 +1,7 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ApiError } from "@/lib/api/api-error";
 import { fetchAdminPayments } from "@/lib/api/server/payment.server";
-import { Pagination } from "@/components/common/Pagination";
+import AdminPaymentsTable from "@/components/admin/payments/AdminPaymentsTable";
 import type { AdminPaymentListItem } from "@/lib/types/payment";
 
 export default async function AdminPaymentsPage({
@@ -30,60 +29,10 @@ export default async function AdminPaymentsPage({
   }
 
   return (
-    <main style={{ maxWidth: 1200, margin: "0 auto", padding: "24px" }}>
-      {/* Header */}
-      <div style={{ marginBottom: 24 }}>
-        <h1>All Payments</h1>
-      </div>
-
-      {/* Payments Table */}
-      <table
-        style={{
-          width: "100%",
-          borderCollapse: "collapse",
-        }}
-      >
-        <thead>
-          <tr>
-            <th align="left">Payment ID</th>
-            <th align="left">Order ID</th>
-            <th align="left">User</th>
-            <th align="left">Amount</th>
-            <th align="left">Status</th>
-            <th align="left">Attempts</th>
-            <th align="left">Date</th>
-            <th align="left">Action</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {items.map((payment) => (
-            <tr key={payment.id} style={{ borderTop: "1px solid #ddd" }}>
-              <td style={{ padding: "8px 0", fontFamily: "monospace" }}>
-                {payment.id}
-              </td>
-              <td style={{ fontFamily: "monospace" }}>{payment.orderId}</td>
-              <td style={{ fontFamily: "monospace" }}>{payment.userId}</td>
-              <td>
-                {payment.currency} {payment.amount}
-              </td>
-              <td>{payment.status}</td>
-              <td>{payment.attempts}</td>
-              <td>{new Date(payment.createdAt).toLocaleDateString()}</td>
-              <td>
-                <Link href={`/admin/payments/${payment.id}`}>View</Link>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {/* Pagination — IDENTICAL to Products */}
-      <Pagination
-        currentPage={currentPage}
-        basePath="/admin/payments"
-        hasNextPage={hasNextPage}
-      />
-    </main>
+    <AdminPaymentsTable
+      payments={items}
+      currentPage={currentPage}
+      hasNextPage={hasNextPage}
+    />
   );
 }

@@ -1,77 +1,20 @@
 import { fetchAdminDashboard } from "@/lib/api/server/admin-dashboard.server";
+import AdminDashboardKPIs from "@/components/admin/dashboard/AdminDashboardKPIs";
+import AdminRecentOrders from "@/components/admin/dashboard/AdminRecentOrders";
+import AdminRecentPayments from "@/components/admin/dashboard/AdminRecentPayments";
 
 export default async function AdminDashboardPage() {
   const data = await fetchAdminDashboard();
 
   return (
-    <main style={{ maxWidth: 1200, margin: "0 auto", padding: 24 }}>
-      <h1>Admin Dashboard</h1>
+    <main className="max-w-6xl mx-auto p-6 space-y-10">
+      <h1 className="text-xl font-semibold">Admin Dashboard</h1>
 
-      {/* KPIs */}
-      <section
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(4,1fr)",
-          gap: 30,
-        }}
-      >
-        <div
-          style={{
-            border: "1px solid #ddd",
-            padding: 30,
-          }}
-        >
-          Total Orders: {data.kpis.totalOrders}
-        </div>
-        <div
-          style={{
-            border: "1px solid #ddd",
-            padding: 30,
-          }}
-        >
-          Pending Orders: {data.kpis.pendingOrders}
-        </div>
-        <div
-          style={{
-            border: "1px solid #ddd",
-            padding: 30,
-          }}
-        >
-          Total Revenue: ₹{data.kpis.totalRevenue}
-        </div>
-        <div
-          style={{
-            border: "1px solid #ddd",
-            padding: 30,
-          }}
-        >
-          Failed Payments: {data.kpis.failedPayments}
-        </div>
-      </section>
+      <AdminDashboardKPIs kpis={data.kpis} />
 
-      {/* Recent Orders */}
-      <section style={{ marginTop: 32 }}>
-        <h3>Recent Orders</h3>
-        <ul>
-          {data.recentOrders.map((o) => (
-            <li key={o._id}>
-              {o._id} — {o.status} — ₹{o.totalAmount}
-            </li>
-          ))}
-        </ul>
-      </section>
+      <AdminRecentOrders orders={data.recentOrders} />
 
-      {/* Recent Payments */}
-      <section style={{ marginTop: 32 }}>
-        <h3>Recent Payments</h3>
-        <ul>
-          {data.recentPayments.map((p) => (
-            <li key={p._id}>
-              {p._id} — {p.status} — ₹{p.amount}
-            </li>
-          ))}
-        </ul>
-      </section>
+      <AdminRecentPayments payments={data.recentPayments} />
     </main>
   );
 }

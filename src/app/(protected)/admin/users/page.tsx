@@ -1,8 +1,8 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ApiError } from "@/lib/api/api-error";
 import { fetchAdminUsers } from "@/lib/api/server/user.server";
-import { Pagination } from "@/components/common/Pagination";
+import Pagination from "@/components/common/Pagination";
+import AdminUsersTable from "@/components/admin/users/AdminUsersTable";
 
 export default async function AdminUsersPage({
   searchParams,
@@ -13,11 +13,9 @@ export default async function AdminUsersPage({
   const currentPage = Math.max(Number(page) || 1, 1);
 
   let res;
-  let hasNextPage = false;
 
   try {
     res = await fetchAdminUsers(currentPage);
-    hasNextPage = res.items.length > 0;
   } catch (err) {
     if (err instanceof ApiError && err.type === "NOT_FOUND") {
       notFound();
@@ -26,52 +24,15 @@ export default async function AdminUsersPage({
   }
 
   return (
-    <main style={{ maxWidth: 1200, margin: "0 auto", padding: "24px" }}>
-      <h1>All Users</h1>
+    <main className="max-w-6xl mx-auto p-6 space-y-4">
+      <h1 className="text-lg font-semibold">All Users</h1>
 
-      <table
-        style={{
-          width: "100%",
-          borderCollapse: "collapse",
-          marginTop: 24,
-        }}
-      >
-        <thead>
-          <tr>
-            <th align="left">User ID</th>
-            <th align="left">Email</th>
-            <th align="left">Name</th>
-            <th align="left">Joined</th>
-            <th align="left">Action</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {res.items.map((u) => (
-            <tr key={u.id} style={{ borderTop: "1px solid #ddd" }}>
-              <td
-                style={{
-                  padding: "8px 0",
-                  fontFamily: "monospace",
-                }}
-              >
-                {u.id}
-              </td>
-              <td>{u.email}</td>
-              <td>{u.name ?? "-"}</td>
-              <td>{new Date(u.createdAt).toLocaleDateString()}</td>
-              <td>
-                <Link href={`/admin/users/${u.id}`}>View</Link>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <AdminUsersTable users={res.items} />
 
       <Pagination
         currentPage={currentPage}
         basePath="/admin/users"
-        hasNextPage={hasNextPage}
+        hasNextPage={res.items.length === res.limit}
       />
     </main>
   );

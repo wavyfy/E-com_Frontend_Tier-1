@@ -1,7 +1,8 @@
 import { fetchAdminReviews } from "@/lib/api/server/review.server";
-import AdminReviewsTable from "@/components/reviews/AdminReviewTable";
-import RatingDistribution from "@/components/reviews/RatingDistributionBar";
+import AdminReviewsTable from "@/components/admin/reviews/AdminReviewTable";
+import RatingDistribution from "@/components/user/reviews/RatingDistributionBar";
 import Link from "next/link";
+import Pagination from "@/components/common/Pagination";
 
 export default async function AdminReviewsPage({
   searchParams,
@@ -9,6 +10,7 @@ export default async function AdminReviewsPage({
   searchParams: Promise<Record<string, string>>;
 }) {
   const params = await searchParams;
+  const page = Number(params.page ?? 1);
 
   const data = await fetchAdminReviews({
     page: Number(params.page ?? 1),
@@ -60,6 +62,11 @@ export default async function AdminReviewsPage({
 
       {/* ===== TABLE ===== */}
       <AdminReviewsTable initialData={data} />
+      <Pagination
+        currentPage={page}
+        basePath="/admin/reviews"
+        hasNextPage={data.items.length === data.limit}
+      />
     </main>
   );
 }

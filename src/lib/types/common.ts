@@ -14,3 +14,15 @@ export type ConfirmModalProps = {
   onConfirm: () => void;
   onCancel: () => void;
 };
+
+export interface LoadingStateProps {
+  message?: string;
+  className?: string;
+}
+
+export interface EmptyStateProps {
+  title?: string;
+  description?: string;
+  action?: React.ReactNode;
+  className?: string;
+}

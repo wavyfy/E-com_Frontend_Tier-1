@@ -1,8 +1,7 @@
-// app/(protected)/account/addresses/[addressId]/edit/page.tsx
 import { fetchAddressById } from "@/lib/api/server/address.server";
 import { notFound } from "next/navigation";
 import { ApiError } from "@/lib/api/api-error";
-import EditAddressClient from "@/components/address/EditAddressClient";
+import EditAddress from "@/components/user/address/EditAddress";
 
 export default async function EditAddressPage({
   params,
@@ -21,5 +20,5 @@ export default async function EditAddressPage({
     throw err;
   }
 
-  return <EditAddressClient address={address} />;
+  return <EditAddress address={address} />;
 }
